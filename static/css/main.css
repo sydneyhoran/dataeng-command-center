@@ -1,0 +1,48 @@
+body {
+    background-color: #6d8ea0 !important;
+    font-family: Tahoma, sans-serif;
+}
+
+nav{
+    background-color: #6d8ea0;
+}
+
+nav>a {
+    color: #f6f2ff;
+    font-family: Tahoma, sans-serif;
+    cursor: default;
+}
+
+div.bg-metal {
+    background-color: #092327 !important;
+    color: #F6F2FF !important;
+}
+
+.intro {
+
+}
+
+.code {
+    font-family: monospace;
+}
+
+.job-card {
+    background-color: #f6f2ff !important;
+    color: #02394a;
+}
+
+.job-card>.card-title {
+    color: #092327;
+    font-family: monospace;
+}
+
+/*a.navbar-brand {
+    cursor: default;
+}*/
+
+div.container {}
+
+
+a.navbar-brand span {
+    color: white;
+}
