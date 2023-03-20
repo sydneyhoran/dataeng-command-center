@@ -29,6 +29,19 @@ div.bg-metal {
 .job-card {
     background-color: #f6f2ff !important;
     color: #02394a;
+    padding: 1.5em .5em .5em !important;
+    border-radius: 1.2em !important;
+    box-shadow: 0 5px 10px rgba(0,0,0,.2) !important;
+}
+
+.topic-card {
+    background-color: #e59f71 !important;
+    color: #02394a;
+}
+
+.topic-card>.card-title {
+    color: #02394a;
+    font-family: monospace;
 }
 
 .job-card>.card-title {

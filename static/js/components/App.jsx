@@ -4,6 +4,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 import IndexTabs from './IndexTabs';
+//import TopicEditor from './TopicEditor';
 
 export default class App extends React.Component {
   constructor() {
@@ -45,6 +46,11 @@ export default class App extends React.Component {
                   path="/"
                   render={props => <IndexTabs {...props} {...app_defaults} />}
                 />
+//                <Route
+//                  exact
+//                  path="/edit/topic"
+//                  render={props => <TopicEditor {...props} {...app_defaults} is_admin = {true}/>}
+//                />
         </div>
     );
   }

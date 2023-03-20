@@ -7,7 +7,7 @@ import logging
 from dotenv import load_dotenv
 
 # init session/engine objects
-Session = api_helper.init_session('command_center')
+Session = api_helper.init_session('command-center')
 
 
 # Needed to generate https uris automatically
@@ -75,3 +75,8 @@ def command_center():
 @app.route('/api/v1/deltastreamer_jobs', methods=['GET', 'POST'])
 def deltastreamer_jobs():
     return api_helper.deltastreamer_jobs(Session)
+
+
+# @app.route('/api/v1/ingestion_topics', methods=['GET', 'POST'])
+# def ingestion_topics():
+#     return api_helper.ingestion_topics(Session)
