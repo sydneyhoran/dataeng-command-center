@@ -35,9 +35,13 @@ export default class IndexTabs extends React.Component {
   }
 
   render() {
+    const {history} = this.props;
     const {tab} = this.state;
     return (
         <div>
+            <div style={{ display: 'inline-block', width: '30%', textAlign: 'right' }}>
+              <input type="submit" className="btn btn-default" value="New Model" onClick={() => history.push('/edit/ingestion_topic')} />
+            </div>
             <div style={{ marginTop: '1.5em' }}>
                 <TabSelector
                     options={Object.values(INDEX_TABS)}

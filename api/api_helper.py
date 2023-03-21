@@ -25,9 +25,7 @@ def get_metadb_engine(db: str):
     print(f"{password=}")
     if db == "command-center":
         conn_str = f"postgresql+psycopg2://{user}:{password}@{host}/{db_name}"
-        return create_engine(conn_str,
-                             # convert_unicode=True, echo=False, echo_pool=False, pool_recycle=3600
-                             )
+        return create_engine(conn_str)
 
 
 def init_session(db='command-center'):
@@ -61,41 +59,21 @@ def deltastreamer_jobs(Session) -> Response:
     return response
 
 
-# def ingestion_topics(Session) -> Response:
-#     session = Session()
-#     response = ApiResponse.server_error()
-#     print("Getting ingestion_topics")
-#
-#     try:
-#         if request.method == 'GET':
-#             jobs = query_handler.get_all_ingestion_topics(session)
-#             response = ApiResponse.success(jobs)
-#         # elif request.method == 'POST':
-#         #     created = query_handler.get_all_ingestion_topics(session, request.get_json())
-#         #     session.commit()
-#         #     response = ApiResponse.success(created)
-#     except Exception as e:
-#         response = ApiResponse.bad_request(str(e))
-#
-#     session.close()
-#     return response
-#
-#
-# def ingestion_topics(Session) -> Response:
-#     session = Session()
-#     response = ApiResponse.server_error()
-#     print("Getting ingestion_topics")
-#
-#     try:
-#         if request.method == 'GET':
-#             jobs = query_handler.get_all_ingestion_topics(session)
-#             response = ApiResponse.success(jobs)
-#         # elif request.method == 'POST':
-#         #     created = query_handler.get_all_ingestion_topics(session, request.get_json())
-#         #     session.commit()
-#         #     response = ApiResponse.success(created)
-#     except Exception as e:
-#         response = ApiResponse.bad_request(str(e))
-#
-#     session.close()
-#     return response
+def ingestion_topics(Session) -> Response:
+    session = Session()
+    response = ApiResponse.server_error()
+    print("Getting ingestion_topics")
+
+    try:
+        if request.method == 'GET':
+            jobs = query_handler.get_all_ingestion_topics(session)
+            response = ApiResponse.success(jobs)
+        elif request.method == 'POST':
+            created = query_handler.create_ingestion_topic(session, request.get_json())
+            session.commit()
+            response = ApiResponse.success(created)
+    except Exception as e:
+        response = ApiResponse.bad_request(str(e))
+
+    session.close()
+    return response

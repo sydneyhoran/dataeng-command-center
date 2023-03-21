@@ -15,8 +15,6 @@ export default class ListLayout extends React.Component {
                 template_counts: {},
             };
         }
-
-        this.onAddClicked = this.onAddClicked.bind(this);
     }
 
     componentDidMount() {
@@ -39,10 +37,10 @@ export default class ListLayout extends React.Component {
        }
     }
 
-    onAddClicked() {
-        // TODO render create new form
-        console.log("Add new button was pressed")
-    }
+//    onAddClicked() {
+//        // TODO render create new form
+//        console.log("Add new button was pressed")
+//    }
 
     renderTopicCard(topic) {
         return(
@@ -128,9 +126,7 @@ export default class ListLayout extends React.Component {
                         <div class="col-lg-11">
                             <h1>Current Deltastreamer Jobs</h1>
                         </div>
-                        <div class="col-lg-1 my-auto">
-                            <button type="button" class="btn btn-success" onClick={this.onAddClicked}>Add New</button>
-                        </div>
+
                     </div>
                     {deltastreamerJobs.map(job => this.renderJobCard(job))}
                 </div>
@@ -160,3 +156,7 @@ ListLayout.propTypes = {
     deltastreamerJobs: PropTypes.array,
 //    ingestionTopics: [],
 };
+
+//                        <div class="col-lg-1 my-auto">
+//                            <button type="button" class="btn btn-success" onClick={this.onAddClicked}>Add New</button>
+//                        </div>

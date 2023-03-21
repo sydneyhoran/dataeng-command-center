@@ -77,6 +77,6 @@ def deltastreamer_jobs():
     return api_helper.deltastreamer_jobs(Session)
 
 
-# @app.route('/api/v1/ingestion_topics', methods=['GET', 'POST'])
-# def ingestion_topics():
-#     return api_helper.ingestion_topics(Session)
+@app.route('/api/v1/ingestion_topics', methods=['GET', 'POST'])
+def ingestion_topics():
+    return api_helper.ingestion_topics(Session)

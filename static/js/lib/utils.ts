@@ -20,6 +20,16 @@ export const getRequest = (route: string, cb: Function, err_cb: Function = () =>
     });
 };
 
+export const postRequest = (route: string, payload: {}, cb: Function, err_cb: Function = () => {}): void => {
+  axios
+    .post(API_PREFIX + route, payload, { 'headers': {'Content-Type': 'application/json' }})
+    .then(res => cb(res.data.response))
+    .catch((err) => {
+      console.log(err);
+      err_cb(err);
+    });
+};
+
 //             <Route
 //                 exact
 //                 path="/"
