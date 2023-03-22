@@ -25,16 +25,21 @@ export default class EditorLayout extends React.Component {
             history,
             setAppState,
         } = this.props;
+        setAppState({ loading: true });
         console.log("In publish topic, topic is:")
         console.log(topic)
+        const route = (for_page == 1) ? 'ingestion_topics' : 'deltastreamer_jobs';
         utils.postRequest(
-            'ingestion_topics',
+            route,
             topic,
             (new_topic) => {
-                history.push('/');
+                setAppState({ loading: false });
+                if (((for_page == 1) && route === 'models') || ((for_page == 2) && route === 'templates')) history.push('/');
+                history.push('/temp');
                 history.goBack();
             },
             (resp) => {
+                setAppState({ loading: false });
                 console.log(`Error publishing ${(for_page == 1) ? 'topic' : 'job'} - ${resp.response.data.response.error}`);
             },
         );

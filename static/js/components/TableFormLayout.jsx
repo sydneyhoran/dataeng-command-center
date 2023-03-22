@@ -35,7 +35,7 @@ export default class TableFormLayout extends React.Component {
         if (is_topic) {
             return {
                 db_name: table.db_name || '',
-                scehma_name: table.scehma_name || '',
+                schema_name: table.schema_name || '',
                 table_name: table.table_name || '',
                 table_size: table.table_size || '',
                 source_ordering_field: table.source_ordering_field || '',

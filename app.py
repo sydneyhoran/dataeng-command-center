@@ -72,6 +72,12 @@ def command_center():
     return render_template('command-center/index.html', admin=False)
 
 
+# catch all routes under edit for react to handle
+@app.route('/edit/<path:table>')
+def edit_table(table):
+    return render_template('command-center/index.html')
+
+
 @app.route('/api/v1/deltastreamer_jobs', methods=['GET', 'POST'])
 def deltastreamer_jobs():
     return api_helper.deltastreamer_jobs(Session)

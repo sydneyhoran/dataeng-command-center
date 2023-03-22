@@ -10,7 +10,7 @@ axios.defaults.headers.common = {
 // ***** API *****
 
 export const getRequest = (route: string, cb: Function, err_cb: Function = () => {}): void => {
-  console.log("in utils.ts getRequest")
+  console.log("in utils.ts getRequest");
   axios
     .get(API_PREFIX + route)
     .then(res => cb(res.data.response))
@@ -21,6 +21,7 @@ export const getRequest = (route: string, cb: Function, err_cb: Function = () =>
 };
 
 export const postRequest = (route: string, payload: {}, cb: Function, err_cb: Function = () => {}): void => {
+  console.log("in utils.ts postRequest");
   axios
     .post(API_PREFIX + route, payload, { 'headers': {'Content-Type': 'application/json' }})
     .then(res => cb(res.data.response))
@@ -29,9 +30,3 @@ export const postRequest = (route: string, payload: {}, cb: Function, err_cb: Fu
       err_cb(err);
     });
 };
-
-//             <Route
-//                 exact
-//                 path="/"
-//                 render={props => <DeltastreamerRoster {...props} {...app_defaults} />}
-//             />

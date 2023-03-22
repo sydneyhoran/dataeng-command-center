@@ -5,6 +5,8 @@ import { Route } from 'react-router-dom';
 
 import IndexTabs from './IndexTabs';
 import TopicEditor from './TopicEditor';
+import LoadingModal from './LoadingModal';
+import ModalContainer from './ModalContainer';
 
 export default class App extends React.Component {
   constructor() {
@@ -13,6 +15,7 @@ export default class App extends React.Component {
 
     this.state = {
         deltastreamerJobs: [],
+        loading: false,
     };
 
     this.setAppState = this.setAppState.bind(this);
@@ -26,7 +29,8 @@ export default class App extends React.Component {
 
   render() {
     const {
-      deltastreamerJobs
+      deltastreamerJobs,
+      loading
     } = this.state;
 
     const app_defaults = {
@@ -35,12 +39,14 @@ export default class App extends React.Component {
     };
 
     return (
+
         <div class="container py-3 px-0 my-3 mx-auto bg-metal rounded w-100">
                 <div class="mx-4">
                     <p>
                         Welcome to the Streaming Command Center!
                     </p>
                 </div>
+                { loading ? <ModalContainer><LoadingModal /></ModalContainer> : null}
                 <Route
                   exact
                   path="/"
