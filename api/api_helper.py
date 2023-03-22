@@ -39,6 +39,10 @@ def init_session(db='command-center'):
     return Session
 
 
+def healthy() -> Response:
+    return ApiResponse.success({})
+
+
 def deltastreamer_jobs(Session) -> Response:
     session = Session()
     response = ApiResponse.server_error()
@@ -62,7 +66,6 @@ def deltastreamer_jobs(Session) -> Response:
 def ingestion_topics(Session) -> Response:
     session = Session()
     response = ApiResponse.server_error()
-    print("Getting ingestion_topics")
 
     try:
         if request.method == 'GET':
@@ -72,6 +75,30 @@ def ingestion_topics(Session) -> Response:
             created = query_handler.create_ingestion_topic(session, request.get_json())
             session.commit()
             response = ApiResponse.success(created)
+    except Exception as e:
+        response = ApiResponse.bad_request(str(e))
+
+    session.close()
+    return response
+
+
+def ingestion_topic(db_name: str, schema_name: str, table_name: str, Session) -> Response:
+    session = Session()
+    response = ApiResponse.server_error()
+
+    try:
+        print(f"Hello from ingestion_topic in api_helper for {db_name} and {schema_name} and {table_name}")
+        # if request.method == 'GET':
+        #     history = query_handler.get_model_history(session, db_name, schema_name, table_name)
+        #     response = ApiResponse.success(history)
+        # elif request.method == 'POST':
+        #     updated = query_handler.update_model(session, db_name, schema_name, table_name, request.get_json())
+        #     session.commit()
+        #     response = ApiResponse.success(updated)
+        # elif request.method == 'DELETE':
+        #     deleted = query_handler.delete_model(session, db_name, schema_name, table_name)
+        #     session.commit()
+        #     response = ApiResponse.success(deleted)
     except Exception as e:
         response = ApiResponse.bad_request(str(e))
 

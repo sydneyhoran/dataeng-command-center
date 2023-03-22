@@ -11,7 +11,7 @@ const Button: React.FC<Props> = ({ value, onClick, disabled=false }) => (
   <button
     type="submit"
     onClick={onClick}
-    className="btn btn-default"
+    className="btn btn-primary"
     style={{ margin: '2px' }}
     disabled={disabled}
   >

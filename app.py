@@ -73,8 +73,13 @@ def command_center():
 
 
 # catch all routes under edit for react to handle
-@app.route('/edit/<path:table>')
-def edit_table(table):
+@app.route('/edit')
+def new_table():
+    return render_template('command-center/index.html')
+
+
+@app.route('/edit/<path:topic>')
+def edit_table(topic):
     return render_template('command-center/index.html')
 
 
@@ -86,3 +91,8 @@ def deltastreamer_jobs():
 @app.route('/api/v1/ingestion_topics', methods=['GET', 'POST'])
 def ingestion_topics():
     return api_helper.ingestion_topics(Session)
+
+
+@app.route('/api/v1/ingestion_topics/<db_name>/<schema_name>/<table_name>', methods=['GET', 'POST', 'DELETE'])
+def ingestion_topic(db_name, schema_name, table_name):
+    return api_helper.ingestion_topic(db_name, schema_name, table_name, Session)

@@ -18,17 +18,21 @@ export default class ListLayout extends React.Component {
     }
 
     componentDidMount() {
-        const { setAppState, for_tab } = this.props;
+        const { setAppState, triggerAlert, for_tab } = this.props;
+        setAppState({ loading: true });
         if (for_tab === 1) {
             const {
                 deltastreamerJobs,
 //                ingestionTopics
             } = this.props;
-            console.log("in ListLayout about to getRequest deltastreamerJobs")
             utils.getRequest(
                 'deltastreamer_jobs',
-                jobs => setAppState({deltastreamerJobs: jobs}),
+                (jobs) => {
+                    setAppState({ loading: false });
+                    setAppState({ deltastreamerJobs: jobs });
+                },
                 (resp) => {
+                    triggerAlert(`Error loading jobs - ${resp.response.data.response.error}`);
                     console.log(`Could not load the jobs - ${resp.response.data.response.error}`);
                 },
             );
@@ -36,11 +40,6 @@ export default class ListLayout extends React.Component {
             console.log(deltastreamerJobs)
        }
     }
-
-//    onAddClicked() {
-//        // TODO render create new form
-//        console.log("Add new button was pressed")
-//    }
 
     renderTopicCard(topic) {
         return(
@@ -149,11 +148,16 @@ export default class ListLayout extends React.Component {
 
 ListLayout.defaultProps = {
     deltastreamerJobs: [],
+    triggerAlert: () => {},
+    setAppState: () => {},
 //    ingestionTopics: [],
 };
 
 ListLayout.propTypes = {
     deltastreamerJobs: PropTypes.array,
+    setAppState: PropTypes.func,
+    triggerAlert: PropTypes.func,
+    history: PropTypes.object.isRequired,
 //    ingestionTopics: [],
 };
 

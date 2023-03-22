@@ -1,0 +1,30 @@
+.alert-overlay {
+  display: flex;
+  width: calc(100% - 20px);
+  height: 30px;
+  background-color: #f2dede;
+  border: solid 1px #555;
+  border-radius: 3px;
+  border-color: #ebccd1;
+  color: #a94442;
+  margin-left: 10px;
+  margin-bottom: 10px;
+}
+
+.alert-dialog {
+  margin: auto;
+}
+
+.alert-msg {
+  font-size: 12px;
+  margin-left: 15px;
+}
+
+.close-alert {
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  -webkit-appearance: none;
+  margin-right: 10px;
+}

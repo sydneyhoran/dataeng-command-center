@@ -47,8 +47,7 @@ export default class TableFormLayout extends React.Component {
     }
 
     handleSubmit(e) {
-        console.log("In handleSubmit")
-        const { is_topic, onSubmit } = this.props;
+        const { is_topic, onSubmit, triggerAlert } = this.props;
         const { current } = this.state;
         const table = Object.assign({}, current);
         console.log("table is:")
@@ -67,8 +66,10 @@ export default class TableFormLayout extends React.Component {
 //            table[key] = table[key].map(elem => elem.value);
 //        });
         if (is_topic) {
+            this.setState({ current: {} });
             onSubmit(table);
         }
+        e.preventDefault();
     }
 
     handleInputChange(e) {
@@ -96,8 +97,8 @@ export default class TableFormLayout extends React.Component {
     }
 
     render() {
-        const { table, is_topic } = this.props;
-                const {
+        const { table, is_topic, triggerAlert } = this.props;
+        const {
             current,
             current: {
                 db_name,
@@ -214,7 +215,7 @@ export default class TableFormLayout extends React.Component {
                             </label>
                             </div>
                         </div>
-                     <Button onClick={this.handleSubmit} value="Publish" />
+                     <Button onClick={e => this.handleSubmit(e)} value="Publish" />
                     </form>
                 </div>
             )

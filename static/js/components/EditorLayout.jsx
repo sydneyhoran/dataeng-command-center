@@ -13,10 +13,10 @@ export default class EditorLayout extends React.Component {
     }
 
     componentDidMount() {
-        const { setAppState, for_page } = this.props;
-        if (for_page == 1) {
-            console.log("Entering create new topic")
-        }
+        const { setAppState, for_page, triggerAlert } = this.props;
+//        if (for_page == 1) {
+//            console.log("Entering editing mode")
+//        }
     }
 
     publishTopic(topic) {
@@ -24,6 +24,7 @@ export default class EditorLayout extends React.Component {
             for_page,
             history,
             setAppState,
+            triggerAlert,
         } = this.props;
         setAppState({ loading: true });
         console.log("In publish topic, topic is:")
@@ -34,13 +35,14 @@ export default class EditorLayout extends React.Component {
             topic,
             (new_topic) => {
                 setAppState({ loading: false });
-                if (((for_page == 1) && route === 'models') || ((for_page == 2) && route === 'templates')) history.push('/');
+                if (((for_page == 1) && route === 'ingestion_topics') || ((for_page == 2) && route === 'deltastreamer_jobs')) history.push('/');
                 history.push('/temp');
                 history.goBack();
             },
             (resp) => {
                 setAppState({ loading: false });
                 console.log(`Error publishing ${(for_page == 1) ? 'topic' : 'job'} - ${resp.response.data.response.error}`);
+                triggerAlert(`Error publishing ${(for_page == 1) ? 'topic' : 'job'} - ${resp.response.data.response.error}`);
             },
         );
     }
@@ -49,10 +51,14 @@ export default class EditorLayout extends React.Component {
         const { for_page } = this.props;
         const selection = ({} || {});
         if (for_page == 1) {
+            const {
+                triggerAlert,
+            } = this.props;
             return (
                 <TopicTableForm
                     topic={selection || {}}
                     onSubmit={this.publishTopic}
+                    triggerAlert={triggerAlert}
                 />
             )
         } else {
@@ -67,9 +73,11 @@ export default class EditorLayout extends React.Component {
 
 EditorLayout.defaultProps = {
     setAppState: () => {},
+    triggerAlert: () => {},
 };
 
 EditorLayout.propTypes = {
     history: PropTypes.object.isRequired,
     setAppState: PropTypes.func,
+    triggerAlert: PropTypes.func,
 };

@@ -12,6 +12,7 @@ def validate_fields(obj: Dict[str, str], field_names: List[str]):
     """
     Ensure the obj dictionary contains keys referenced in the field_names list
     """
+    print("in validate_fields in query_handler.py")
     invalid_fields = []
     for field in field_names:
         if not obj.get(field):
@@ -30,7 +31,6 @@ def get_all_deltastreamer_jobs(session) -> List[Dict]:
 
 
 def get_all_ingestion_topics(session) -> List[Dict]:
-    print("in get_all_ingestion_topics")
     res = session.query(IngestionTopic).all()
     print(f"Res {res}")
     return [t.formatted_dict() for t in res]
@@ -51,12 +51,10 @@ def insert_deltastreamer_job(session, job_dict: Dict[str, str]):
 
 
 def create_deltastreamer_job(session, args_dict: Dict[str, str]) -> List[Dict]:
-    print(f"Creating new job {args_dict}")
     validate_fields(
         args_dict,
         ['job_name', 'test_phase', 'job_size', 'updated_by']
     )
-    print(f"Validated fields of new job")
 
     job_dict = {
         **args_dict,
@@ -72,7 +70,6 @@ def create_deltastreamer_job(session, args_dict: Dict[str, str]) -> List[Dict]:
 
 
 def insert_ingestion_topic(session, topic_dict: Dict[str, str]):
-    print(f"About to add new topic {topic_dict}")
     new_topic = IngestionTopic(
         db_name=topic_dict['db_name'],
         schema_name=topic_dict['schema_name'],
@@ -104,6 +101,16 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
             'updated_by',
         ]
     )
+
+    res = session.query(IngestionTopic).filter(
+        IngestionTopic.db_name == args_dict['db_name'],
+        IngestionTopic.schema_name == args_dict['schema_name'],
+        IngestionTopic.table_name == args_dict['table_name']
+    ).all()
+
+    if len(res) > 0:
+        raise Exception('Topic already exists')
+
     topic_dict = {
         **args_dict,
         'created_at': datetime.datetime.now(),
