@@ -38,8 +38,8 @@ export default class TableFormLayout extends React.Component {
                 db_name: table.db_name || '',
                 schema_name: table.schema_name || '',
                 table_name: table.table_name || '',
-                table_size: table.table_size || '',
-                multi_flag: table.multi_flag || '',
+                table_size: table.table_size || 'xs',
+                multi_flag: table.multi_flag || 'false',
                 source_ordering_field: table.source_ordering_field || 'updated_at',
                 record_key: table.record_key || 'id',
                 partition_path_field: table.partition_path_field || 'inserted_at',
@@ -187,7 +187,8 @@ export default class TableFormLayout extends React.Component {
                                   onChange={this.handleInputChange}
                                   name="table_size"
                                   className="form-control"
-                                  value="xs" />
+                                  value="xs"
+                                  checked/>
                                  X-Small
                             </label>
                             <label class="btn btn-secondary">
@@ -225,7 +226,8 @@ export default class TableFormLayout extends React.Component {
                                   onChange={this.handleInputChange}
                                   name="multi_flag"
                                   className="form-control"
-                                  value="false" />
+                                  value="false"
+                                  checked/>
                                  SingleTable
                             </label>
                             <label class="btn btn-dark">

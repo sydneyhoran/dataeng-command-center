@@ -36,6 +36,17 @@ def get_all_ingestion_topics(session) -> List[Dict]:
     return [t.formatted_dict() for t in res]
 
 
+def add_topic_to_job(session, job_name, topic_args_dict):
+    print(f"Adding {topic_args_dict} to job {job_name}")
+    topic = session.query(IngestionTopic).filter(
+        IngestionTopic.db_name == topic_args_dict['db_name'],
+        IngestionTopic.schema_name == topic_args_dict['schema_name'],
+        IngestionTopic.table_name == topic_args_dict['table_name'],
+    ).one()
+    job = session.query(DeltaStreamerJob).filter(DeltaStreamerJob.job_name == job_name).one()
+    job.ingestion_topics.append(topic)
+
+
 def insert_deltastreamer_job(session, job_dict: Dict[str, str]):
     print(f"About to add new job {job_dict}")
     new_job = DeltaStreamerJob(
@@ -118,6 +129,19 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
     }
 
     insert_ingestion_topic(session, topic_dict)
+    session.commit()
+
+    if args_dict['multi_flag'] == "false":
+        new_job_name = f"deltastreamer_{args_dict['db_name']}_{args_dict['schema_name']}_{args_dict['table_name']}"
+        print(f"Creating new DeltaStreamer job {new_job_name}")
+        new_job_args_dict = {
+            'job_name': new_job_name,
+            'test_phase': 'initial',
+            'job_size': args_dict['table_size'],
+            'updated_by': args_dict['updated_by']
+        }
+        create_deltastreamer_job(session, new_job_args_dict)
+        add_topic_to_job(session, new_job_name, args_dict)
 
     topic_dict['updated_at'] = topic_dict['updated_at'].isoformat()
     topic_dict['created_at'] = topic_dict['created_at'].isoformat()
