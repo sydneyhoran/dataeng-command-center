@@ -34,13 +34,15 @@ export default class TableFormLayout extends React.Component {
         const { is_topic } = this.props;
         if (is_topic) {
             return {
+                topic_name: table.topic_name || '',
                 db_name: table.db_name || '',
                 schema_name: table.schema_name || '',
                 table_name: table.table_name || '',
                 table_size: table.table_size || '',
-                source_ordering_field: table.source_ordering_field || '',
-                record_key: table.record_key || '',
-                partition_path_field: table.partition_path_field || '',
+                multi_flag: table.multi_flag || '',
+                source_ordering_field: table.source_ordering_field || 'updated_at',
+                record_key: table.record_key || 'id',
+                partition_path_field: table.partition_path_field || 'inserted_at',
                 updated_by: table.updated_by || ''
             }
         }
@@ -77,7 +79,20 @@ export default class TableFormLayout extends React.Component {
         const { current } = this.state;
         const { value, name } = e.target;
         const updated = Object.assign({}, current, { [name]: value });
-        this.setState({ current: updated });
+        this.setState({
+            current: updated
+        }, () => {
+            if ((name === 'topic_name') && (value.split('.').length == 3) && (value.split('.')[2])) {
+                const table_updated = Object.assign({}, current, {
+                    ['db_name']: value.split('.')[0],
+                    ['schema_name']: value.split('.')[1],
+                    ['table_name']: value.split('.')[2],
+                    [name]: value
+                });
+                this.setState({ current: table_updated });
+            }
+        });
+
 //        if (is_topic) {
 //            const updated = Object.assign({}, { [name]: value });
 //            this.setState({ new_tag: updated });
@@ -101,10 +116,12 @@ export default class TableFormLayout extends React.Component {
         const {
             current,
             current: {
+                topic_name,
                 db_name,
                 schema_name,
                 table_name,
                 table_size,
+                multi_flag,
                 source_ordering_field,
                 record_key,
                 partition_path_field,
@@ -120,50 +137,105 @@ export default class TableFormLayout extends React.Component {
                         <div className="left-form">
                             <div className="form-group">
                             <label>
-                                Database
+                                Topic Name
                                 <input
-                                value={db_name}
+                                value={topic_name}
                                 onChange={this.handleInputChange}
-                                name="db_name"
+                                name="topic_name"
                                 type="text"
                                 className="form-control"
                                 />
                             </label>
-                            </div>
-                            <div className="form-group">
+                            <label>
+                                Database
+                                <input
+                                value={db_name || "Enter topic to generate" }
+                                name="db_name"
+                                type="text"
+                                className="form-control"
+                                readonly
+                                disabled
+                                />
+                            </label>
                             <label>
                                 Schema Name
                                 <input
                                 value={schema_name}
-                                onChange={this.handleInputChange}
                                 name="schema_name"
                                 type="text"
                                 className="form-control"
+                                readonly
+                                disabled
                                 />
                             </label>
-                            </div>
-                            <div className="form-group">
                             <label>
                                 Table Name
                                 <input
                                 value={table_name}
-                                onChange={this.handleInputChange}
                                 name="table_name"
                                 type="text"
                                 className="form-control"
+                                readonly
+                                disabled
                                 />
                             </label>
                             </div>
-                            <div className="form-group">
-                            <label>
-                                Table Size
+                            <div class="btn-group btn-group-toggle" className="form-group">
+                            <label class="btn btn-secondary">
                                 <input
-                                value={table_size}
-                                onChange={this.handleInputChange}
-                                name="table_size"
-                                type="text"
-                                className="form-control"
-                                />
+                                  type="radio"
+                                  onChange={this.handleInputChange}
+                                  name="table_size"
+                                  className="form-control"
+                                  value="xs" />
+                                 X-Small
+                            </label>
+                            <label class="btn btn-secondary">
+                                <input
+                                  type="radio"
+                                  onChange={this.handleInputChange}
+                                  name="table_size"
+                                  className="form-control"
+                                  value="sm" />
+                                 Small
+                            </label>
+                            <label class="btn btn-secondary">
+                                <input
+                                  type="radio"
+                                  onChange={this.handleInputChange}
+                                  name="table_size"
+                                  className="form-control"
+                                  value="md" />
+                                 Medium
+                            </label>
+                            <label class="btn btn-secondary">
+                                <input
+                                  type="radio"
+                                  onChange={this.handleInputChange}
+                                  name="table_size"
+                                  className="form-control"
+                                  value="lg" />
+                                 Large
+                            </label>
+                            </div>
+                            <div class="btn-group btn-group-toggle" className="form-group">
+                            <label class="btn btn-light">
+                                <input
+                                  type="radio"
+                                  onChange={this.handleInputChange}
+                                  name="multi_flag"
+                                  className="form-control"
+                                  value="false" />
+                                 SingleTable
+                            </label>
+                            <label class="btn btn-dark">
+                                <input
+                                  type="radio"
+                                  onChange={this.handleInputChange}
+                                  name="multi_flag"
+                                  className="form-control"
+                                  value="true" />
+                                 MultiTable
                             </label>
                             </div>
                             <div className="form-group">
@@ -239,3 +311,18 @@ TableFormLayout.propTypes = {
     table: PropTypes.object,
     onSubmit: PropTypes.func,
 };
+
+//                            <div class="btn-group btn-group-toggle" className="form-group">
+//                            <label>
+//                                Table Size
+//                                <select
+//                                value={table_size}
+//                                onChange={this.handleInputChange}
+//                                name="table_size"
+//                                className="form-control">
+//                                    <option value="lg">Large</option>
+//                                    <option value="md">Medium</option>
+//                                    <option value="sm">Small</option>
+//                                    <option value="xs">X-Small</option>
+//                                </select>
+//                            </label>
