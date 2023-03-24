@@ -40,7 +40,8 @@ export default class IndexTabs extends React.Component {
     return (
         <div>
             <div style={{ display: 'inline-block', width: '90%', textAlign: 'right' }}>
-              <input type="submit" className="btn btn-success" value="New Ingestion Topic" onClick={() => history.push('/edit/ingestion_topic')} />
+              <input type="submit" className="btn btn-success mr-3" value="New Ingestion Topic" onClick={() => history.push('/edit/ingestion_topic')} />
+              <input type="submit" className="btn btn-primary" value="New Deltastreamer Job" onClick={() => history.push('/edit/deltastreamer_job')} />
             </div>
             <div style={{ marginTop: '1.5em' }}>
                 <TabSelector

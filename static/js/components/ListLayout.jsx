@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 
 import { Link } from 'react-router-dom';
 
+//import DeleteButton from './DeleteButton';
+
 import * as utils from '../lib/utils';
 
 export default class ListLayout extends React.Component {
