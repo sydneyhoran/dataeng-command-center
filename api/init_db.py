@@ -44,11 +44,12 @@ def init_session(db='command-center'):
 
 
 def create_ingestion_topic(session, topic_dict: Dict[str, str], return_result=False):
-    print(f"About to create new topic {topic_dict['db_name']}.{topic_dict['schema_name']}.{topic_dict['table_name']}")
+    print(f"About to create new topic {topic_dict['topic_name']}")
     new_topic = IngestionTopic(
-        db_name=topic_dict['db_name'],
-        schema_name=topic_dict['schema_name'],
-        table_name=topic_dict['table_name'],
+        # db_name=topic_dict['db_name'],
+        # schema_name=topic_dict['schema_name'],
+        # table_name=topic_dict['table_name'],
+        topic_name=topic_dict['topic_name'],
         table_size=topic_dict['table_size'],
         source_ordering_field=topic_dict['source_ordering_field'],
         record_key=topic_dict['record_key'],
@@ -113,9 +114,10 @@ sql_session.commit()
 create_ingestion_topic(
     session=sql_session,
     topic_dict={
-        "db_name": "identity",
-        "schema_name": "public_history",
-        "table_name": "account_activities",
+        # "db_name": "identity",
+        # "schema_name": "public_history",
+        # "table_name": "account_activities",
+        "topic_name": "identity.public_history.account_activities",
         "table_size": "lg",
         "source_ordering_field": "updated_at",
         "record_key": "id",
@@ -128,9 +130,10 @@ create_ingestion_topic(
 create_ingestion_topic(
     session=sql_session,
     topic_dict={
-        "db_name": "identity",
-        "schema_name": "public_history",
-        "table_name": "nobody",
+        # "db_name": "identity",
+        # "schema_name": "public_history",
+        # "table_name": "nobody",
+        "topic_name": "identity.public_history.nobody",
         "table_size": "lg",
         "source_ordering_field": "updated_at",
         "record_key": "id",
@@ -142,7 +145,7 @@ create_ingestion_topic(
 )
 sql_session.commit()
 
-ingestion_topics_job_1 = sql_session.query(IngestionTopic).filter(IngestionTopic.table_name == "account_activities").all()
+ingestion_topics_job_1 = sql_session.query(IngestionTopic).filter(IngestionTopic.topic_name == "identity.public_history.account_activities").all()
 
 print(f"Topics: {[t.formatted_dict() for t in ingestion_topics_job_1]}")
 

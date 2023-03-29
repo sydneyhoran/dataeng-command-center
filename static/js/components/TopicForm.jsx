@@ -41,8 +41,6 @@ export default class TopicForm extends React.Component {
         const { onSubmit, triggerAlert } = this.props;
         const { current } = this.state;
         const topic = Object.assign({}, current);
-        console.log("topic is:")
-        console.log(topic)
 //        const keys = [
 //            'db_name',
 //            'schema_name',

@@ -79,7 +79,12 @@ def new_table():
 
 
 @app.route('/edit/<path:topic>')
-def edit_table(topic):
+def edit_topic(topic):
+    return render_template('command-center/index.html')
+
+
+@app.route('/edit/<path:job>')
+def edit_job(job):
     return render_template('command-center/index.html')
 
 
@@ -91,6 +96,12 @@ def deltastreamer_jobs():
 @app.route('/api/v1/ingestion_topics', methods=['GET', 'POST'])
 def ingestion_topics():
     return api_helper.ingestion_topics(Session)
+
+
+@app.route('/api/v1/unassigned_topics', methods=['GET'])
+def unassigned_topics():
+    print("in unassigned_topics in app.py")
+    return api_helper.unassigned_topics(Session)
 
 
 @app.route('/api/v1/ingestion_topics/<db_name>/<schema_name>/<table_name>', methods=['GET', 'POST', 'DELETE'])

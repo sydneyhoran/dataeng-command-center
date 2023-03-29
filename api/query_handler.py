@@ -36,12 +36,15 @@ def get_all_ingestion_topics(session) -> List[Dict]:
     return [t.formatted_dict() for t in res]
 
 
-def add_topic_to_job(session, job_name, topic_args_dict):
-    print(f"Adding {topic_args_dict} to job {job_name}")
+def get_unassigned_topics(session) -> List[Dict]:
+    res = session.query(IngestionTopic).filter(IngestionTopic.deltastreamer_job_name == "unassigned_topics")
+    return [t.formatted_dict() for t in res]
+
+
+def add_topic_to_job(session, job_name, topic_name):
+    print(f"Adding {topic_name} to job {job_name}")
     topic = session.query(IngestionTopic).filter(
-        IngestionTopic.db_name == topic_args_dict['db_name'],
-        IngestionTopic.schema_name == topic_args_dict['schema_name'],
-        IngestionTopic.table_name == topic_args_dict['table_name'],
+        IngestionTopic.topic_name == topic_name
     ).one()
     job = session.query(DeltaStreamerJob).filter(DeltaStreamerJob.job_name == job_name).one()
     job.ingestion_topics.append(topic)
@@ -57,7 +60,6 @@ def insert_deltastreamer_job(session, job_dict: Dict[str, str]):
         updated_at=job_dict['updated_at'],
         updated_by=job_dict['updated_by'],
     )
-    print(f"Added new job {new_job}")
     session.add(new_job)
 
 
@@ -74,6 +76,11 @@ def create_deltastreamer_job(session, args_dict: Dict[str, str]) -> List[Dict]:
     }
 
     insert_deltastreamer_job(session, job_dict)
+    session.commit()
+
+    if ('topic_list' in job_dict) and (len(job_dict['topic_list']) > 0):
+        for topic in job_dict['topic_list']:
+            add_topic_to_job(session, job_dict['job_name'], topic)
 
     job_dict['updated_at'] = job_dict['updated_at'].isoformat()
     job_dict['created_at'] = job_dict['created_at'].isoformat()
@@ -82,9 +89,10 @@ def create_deltastreamer_job(session, args_dict: Dict[str, str]) -> List[Dict]:
 
 def insert_ingestion_topic(session, topic_dict: Dict[str, str]):
     new_topic = IngestionTopic(
-        db_name=topic_dict['db_name'],
-        schema_name=topic_dict['schema_name'],
-        table_name=topic_dict['table_name'],
+        # db_name=topic_dict['db_name'],
+        # schema_name=topic_dict['schema_name'],
+        # table_name=topic_dict['table_name'],
+        topic_name=topic_dict['topic_name'],
         table_size=topic_dict['table_size'],
         source_ordering_field=topic_dict['source_ordering_field'],
         record_key=topic_dict['record_key'],
@@ -102,9 +110,10 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
     validate_fields(
         args_dict,
         [
-            'db_name',
-            'schema_name',
-            'table_name',
+            # 'db_name',
+            # 'schema_name',
+            # 'table_name',
+            'topic_name',
             'table_size',
             'source_ordering_field',
             'record_key',
@@ -114,9 +123,10 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
     )
 
     res = session.query(IngestionTopic).filter(
-        IngestionTopic.db_name == args_dict['db_name'],
-        IngestionTopic.schema_name == args_dict['schema_name'],
-        IngestionTopic.table_name == args_dict['table_name']
+        # IngestionTopic.db_name == args_dict['db_name'],
+        # IngestionTopic.schema_name == args_dict['schema_name'],
+        # IngestionTopic.table_name == args_dict['table_name'],
+        IngestionTopic.topic_name == args_dict['topic_name']
     ).all()
 
     if len(res) > 0:
@@ -132,7 +142,7 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
     session.commit()
 
     if args_dict['multi_flag'] == "false":
-        new_job_name = f"deltastreamer_{args_dict['db_name']}_{args_dict['schema_name']}_{args_dict['table_name']}"
+        new_job_name = f"deltastreamer_{args_dict['topic_name'].replace('.', '_')}"
         print(f"Creating new DeltaStreamer job {new_job_name}")
         new_job_args_dict = {
             'job_name': new_job_name,
@@ -141,7 +151,7 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
             'updated_by': args_dict['updated_by']
         }
         create_deltastreamer_job(session, new_job_args_dict)
-        add_topic_to_job(session, new_job_name, args_dict)
+        add_topic_to_job(session, new_job_name, topic_dict['topic_name'])
 
     topic_dict['updated_at'] = topic_dict['updated_at'].isoformat()
     topic_dict['created_at'] = topic_dict['created_at'].isoformat()

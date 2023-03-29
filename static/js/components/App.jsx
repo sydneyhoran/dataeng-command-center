@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 
 import AlertDialog from './AlertDialog';
 import IndexTabs from './IndexTabs';
+import JobEditor from './JobEditor';
 import TopicEditor from './TopicEditor';
 import LoadingModal from './LoadingModal';
 import ModalContainer from './ModalContainer';
@@ -18,6 +19,7 @@ export default class App extends React.Component {
     this.state = {
         alerts: [],
         deltastreamerJobs: [],
+        unassigned_topics: [],
         loading: false,
     };
 
@@ -28,6 +30,7 @@ export default class App extends React.Component {
   }
 
   setAppState(state) {
+    console.log("in setAppState in App.jsx")
     this.setState(state);
   }
 
@@ -67,6 +70,7 @@ export default class App extends React.Component {
   render() {
     const {
       deltastreamerJobs,
+      unassigned_topics,
       loading,
       alerts
     } = this.state;
@@ -74,7 +78,8 @@ export default class App extends React.Component {
     const app_defaults = {
       setAppState: this.setAppState,
       triggerAlert: this.triggerAlert,
-      deltastreamerJobs
+      deltastreamerJobs,
+      unassigned_topics
     };
 
     return (
@@ -98,6 +103,11 @@ export default class App extends React.Component {
                   render={props => <TopicEditor {...props} {...app_defaults} />}
                 />
                 <Route
+                  exact
+                  path="/edit/deltastreamer_job"
+                  render={props => <JobEditor {...props} {...app_defaults} />}
+                />
+                <Route
                   path="/edit/ingestion_topic/:db_name/:schema_name/:table_name"
                   render={props => <TopicEditor {...props} {...app_defaults} />}
                 />
@@ -106,8 +116,3 @@ export default class App extends React.Component {
   }
 }
 
-//                <Route
-//                  exact
-//                  path="/edit/deltastreamer_job"
-//                  render={props => <JobEditor {...props} {...app_defaults} />}
-//                />

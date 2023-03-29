@@ -38,8 +38,6 @@ export default class ListLayout extends React.Component {
                     console.log(`Could not load the jobs - ${resp.response.data.response.error}`);
                 },
             );
-            console.log("Got deltastreamerJobs")
-            console.log(deltastreamerJobs)
        }
     }
 
@@ -104,23 +102,12 @@ export default class ListLayout extends React.Component {
 
     render() {
         const { for_tab } = this.props;
-        console.log("in render ListLayout")
         if (for_tab === 1) {
-            console.log("for_tab === 1")
             const {
                 deltastreamerJobs,
                 ingestionTopics
             } = this.props;
-            console.log("in render list")
             console.log("Deltastreamer jobs" + deltastreamerJobs)
-//            console.log("Ingestion topics" + ingestionTopics)
-            deltastreamerJobs.forEach((job) => {
-                console.log(job.job_name)
-                console.log(job.ingestion_topics)
-            });
-//            ingestionTopics.forEach((topic) => {
-//                console.log(topic.formatted_dict().topic_name)
-//            });
             return (
                 <div>
                     <div class="row w-100">
@@ -152,7 +139,6 @@ ListLayout.defaultProps = {
     deltastreamerJobs: [],
     triggerAlert: () => {},
     setAppState: () => {},
-//    ingestionTopics: [],
 };
 
 ListLayout.propTypes = {
@@ -160,9 +146,4 @@ ListLayout.propTypes = {
     setAppState: PropTypes.func,
     triggerAlert: PropTypes.func,
     history: PropTypes.object.isRequired,
-//    ingestionTopics: [],
 };
-
-//                        <div class="col-lg-1 my-auto">
-//                            <button type="button" class="btn btn-success" onClick={this.onAddClicked}>Add New</button>
-//                        </div>

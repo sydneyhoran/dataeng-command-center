@@ -19,10 +19,6 @@ password = os.environ.get('DB_PASSWORD')
 
 def get_metadb_engine(db: str):
     # conf = configparser.ConfigParser()
-    print(f"{db_name=}")
-    print(f"{host=}")
-    print(f"{user=}")
-    print(f"{password=}")
     if db == "command-center":
         conn_str = f"postgresql+psycopg2://{user}:{password}@{host}/{db_name}"
         return create_engine(conn_str)
@@ -46,7 +42,7 @@ def healthy() -> Response:
 def deltastreamer_jobs(Session) -> Response:
     session = Session()
     response = ApiResponse.server_error()
-    print("Getting deltastreamer_jobs")
+    print("In deltastreamer_jobs")
 
     try:
         if request.method == 'GET':
@@ -75,6 +71,21 @@ def ingestion_topics(Session) -> Response:
             created = query_handler.create_ingestion_topic(session, request.get_json())
             session.commit()
             response = ApiResponse.success(created)
+    except Exception as e:
+        response = ApiResponse.bad_request(str(e))
+
+    session.close()
+    return response
+
+
+def unassigned_topics(Session) -> Response:
+    session = Session()
+    response = ApiResponse.server_error()
+
+    try:
+        if request.method == 'GET':
+            topics = query_handler.get_unassigned_topics(session)
+            response = ApiResponse.success(topics)
     except Exception as e:
         response = ApiResponse.bad_request(str(e))
 

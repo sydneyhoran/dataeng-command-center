@@ -22,8 +22,6 @@ export default class TopicEditor extends React.Component {
             triggerAlert,
         } = this.props;
         setAppState({ loading: true });
-        console.log("In publish topic, topic is:")
-        console.log(topic)
         // TODO change to 'ingestion_topics' (for new) or 'ingestion_topics/:db/:schema/:table' (for edit)
         const route = 'ingestion_topics';
         utils.postRequest(
