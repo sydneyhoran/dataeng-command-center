@@ -154,7 +154,7 @@ export default class TopicForm extends React.Component {
                                   name="table_size"
                                   className="form-control"
                                   value="xs"
-                                  checked/>
+                                  checked={table_size === "xs"} />
                                  X-Small
                             </label>
                             <label class="btn btn-secondary">
@@ -163,7 +163,8 @@ export default class TopicForm extends React.Component {
                                   onChange={this.handleInputChange}
                                   name="table_size"
                                   className="form-control"
-                                  value="sm" />
+                                  value="sm"
+                                  checked={table_size === "sm"} />
                                  Small
                             </label>
                             <label class="btn btn-secondary">
@@ -172,7 +173,8 @@ export default class TopicForm extends React.Component {
                                   onChange={this.handleInputChange}
                                   name="table_size"
                                   className="form-control"
-                                  value="md" />
+                                  value="md"
+                                  checked={table_size === "md"} />
                                  Medium
                             </label>
                             <label class="btn btn-secondary">
@@ -181,7 +183,8 @@ export default class TopicForm extends React.Component {
                                   onChange={this.handleInputChange}
                                   name="table_size"
                                   className="form-control"
-                                  value="lg" />
+                                  value="lg"
+                                  checked={table_size === "lg"} />
                                  Large
                             </label>
                         </div>
@@ -193,7 +196,7 @@ export default class TopicForm extends React.Component {
                                   name="multi_flag"
                                   className="form-control"
                                   value="false"
-                                  checked/>
+                                  checked={multi_flag === "false"} />
                                  SingleTable
                             </label>
                             <label class="btn btn-dark">
@@ -202,7 +205,8 @@ export default class TopicForm extends React.Component {
                                   onChange={this.handleInputChange}
                                   name="multi_flag"
                                   className="form-control"
-                                  value="true" />
+                                  value="true"
+                                  checked={multi_flag === "true"} />
                                  MultiTable
                             </label>
                         </div>

@@ -46,8 +46,8 @@ export default class JobForm extends React.Component {
         return {
             job_name: job.job_name || 'deltastreamer_',
             topic_list: job.topic_list || [],
-            job_size: job.job_size || '',
-            test_phase: job.test_phase || '',
+            job_size: job.job_size || 'xs',
+            test_phase: job.test_phase || 'initial',
             updated_by: job.updated_by || ''
         }
     }
@@ -215,7 +215,7 @@ export default class JobForm extends React.Component {
                                                   name="job_size"
                                                   className="form-control"
                                                   value="xs"
-                                                  checked/>
+                                                  checked={job_size === "xs"} />
                                             X-Small
                                         </label>
                                         <label class="btn btn-secondary">
@@ -224,7 +224,8 @@ export default class JobForm extends React.Component {
                                                   onChange={this.handleInputChange}
                                                   name="job_size"
                                                   className="form-control"
-                                                  value="sm" />
+                                                  value="sm"
+                                                  checked={job_size === "sm"} />
                                                 Small
                                         </label>
                                         <label class="btn btn-secondary">
@@ -233,7 +234,8 @@ export default class JobForm extends React.Component {
                                                   onChange={this.handleInputChange}
                                                   name="job_size"
                                                   className="form-control"
-                                                  value="md" />
+                                                  value="md"
+                                                  checked={job_size === "md"} />
                                                  Medium
                                         </label>
                                         <label class="btn btn-secondary">
@@ -242,7 +244,8 @@ export default class JobForm extends React.Component {
                                                   onChange={this.handleInputChange}
                                                   name="job_size"
                                                   className="form-control"
-                                                  value="lg" />
+                                                  value="lg"
+                                                  checked={job_size === "lg"} />
                                                  Large
                                             </label>
                                         </label>
@@ -257,7 +260,7 @@ export default class JobForm extends React.Component {
                                                       name="test_phase"
                                                       className="form-control"
                                                       value="initial"
-                                                      checked/>
+                                                      checked={test_phase === "initial"} />
                                                 Initial
                                             </label>
                                             <label class="btn btn-dark">
@@ -266,7 +269,9 @@ export default class JobForm extends React.Component {
                                                       onChange={this.handleInputChange}
                                                       name="test_phase"
                                                       className="form-control"
-                                                      value="complete" />
+                                                      value="complete"
+                                                      checked={test_phase === "complete"}
+                                                      />
                                                 Completed
                                             </label>
                                         </label>
