@@ -9,10 +9,10 @@ export default class JobForm extends React.Component {
     constructor(props) {
         super(props);
         const { job, unassigned_topics } = props;
-        console.log("\n\nIn JobForm constructor, job is " + JSON.stringify(job))
         this.state = {
             current: this.formatJobProps(job),
             initial: this.formatJobProps(job),
+            existing_topics: job.ingestion_topics || []
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -21,20 +21,55 @@ export default class JobForm extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         const { job } = nextProps;
-        console.log("JobForm is receiving next props, job:" + JSON.stringify(job));
         const formatted_props = this.formatJobProps(job);
-        console.log("JobForm is receiving next props " + JSON.stringify(formatted_props));
-        this.setState({ current: formatted_props, initial: formatted_props });
+        this.setState({
+            current: formatted_props,
+            initial: formatted_props,
+            existing_topics: job.ingestion_topics
+        }, () => {
+            if (job.ingestion_topics) {
+                job.ingestion_topics.map(topic => this.addItemToTopicList(topic.topic_name));
+            }
+        });
     }
 
     formatJobProps(job) {
-        return {
+        const ret = {
             job_name: job.job_name || 'deltastreamer_',
             topic_list: job.topic_list || [],
             job_size: job.job_size || 'xs',
             test_phase: job.test_phase || 'initial',
             updated_by: job.updated_by || ''
         }
+        return ret
+    }
+
+    handleInputChange(e) {
+        const { current } = this.state;
+        const { value, name } = e.target;
+        const updated = Object.assign({}, current, { [name]: value });
+        this.setState({
+            current: updated
+        }, () => {
+        });
+    }
+
+    handleTopicSelectionChange(e) {
+        this.addItemToTopicList(e.target.id);
+    }
+
+    addItemToTopicList(topic_name) {
+        const { current } = this.state;
+        const { topic_list } = {...this.state.current};
+        let newArray = [...topic_list, topic_name];
+        if (topic_list.includes(topic_name)) {
+            newArray = newArray.filter(array_item => array_item !== topic_name);
+        }
+        const updated = Object.assign({}, current, { topic_list: newArray } );
+        this.setState({
+            current: updated
+        }, () => {
+        });
     }
 
     handleSubmit(e) {
@@ -86,6 +121,7 @@ export default class JobForm extends React.Component {
     }
 
     renderTopicRow(topic) {
+        const { topic_list } = {...this.state.current};
         return (
             <tr role="row" key={`${topic.topic_name}`}>
                 <td>
@@ -96,7 +132,9 @@ export default class JobForm extends React.Component {
                             name={`${topic.topic_name}`}
                             className="form-control form-check-input"
                             value="included"
-                            id={`${topic.topic_name}`} />
+                            id={`${topic.topic_name}`}
+                            checked={topic_list.includes(`${topic.topic_name}`)}
+                        />
                     </div>
                 </td>
                 <td>{topic.topic_name}</td>
@@ -106,7 +144,7 @@ export default class JobForm extends React.Component {
         )
     }
 
-    renderSelectionTable(unassigned_topics) {
+    renderSelectionTable(unassigned_topics, existing_topics) {
         return (
             <table className="table table-striped table-bordered dataTable no-footer" style={{ paddingTop: '10px' }}>
                 <thead>
@@ -117,7 +155,22 @@ export default class JobForm extends React.Component {
                         <th ref={React.createRef()}>Table Size</th>
                     </tr>
                 </thead>
-                <tbody>
+                {existing_topics &&
+                <tbody id="section1">
+                    <tr role="row">
+                        <th colspan="4">
+                            Original Topics Selected
+                        </th>
+                    </tr>
+                    {existing_topics.map(topic => this.renderTopicRow(topic, true))}
+                </tbody>
+                }
+                <tbody id="section2">
+                    <tr role="row">
+                        <th colspan="4">
+                            Available Topics
+                        </th>
+                    </tr>
                     {unassigned_topics.map(topic => this.renderTopicRow(topic))}
                 </tbody>
             </table>
@@ -125,34 +178,8 @@ export default class JobForm extends React.Component {
 
     }
 
-    handleInputChange(e) {
-        const { current } = this.state;
-        const { value, name } = e.target;
-        const updated = Object.assign({}, current, { [name]: value });
-        this.setState({
-            current: updated
-        }, () => {
-        });
-    }
-
-    handleTopicSelectionChange(e) {
-        const { current } = this.state;
-        const { topic_list } = {...this.state.current}
-        let newArray = [...topic_list, e.target.id];
-        if (topic_list.includes(e.target.id)) {
-          newArray = newArray.filter(topic_name => topic_name !== e.target.id);
-        }
-        const updated = Object.assign({}, current, { topic_list: newArray });
-        this.setState({
-            current: updated
-        }, () => {
-        });
-    }
-
     render() {
-//        console.log("In JobForm render(), Props are " + JSON.stringify(this.props));
-//        console.log("In JobForm render(), State is " + JSON.stringify(this.state));
-        const { job, unassigned_topics } = this.props;
+        const { unassigned_topics } = this.props;
         const {
             current,
             current: {
@@ -163,6 +190,7 @@ export default class JobForm extends React.Component {
                 updated_by,
             },
             initial,
+            existing_topics
         } = this.state;
         return(
             <div className="job-card px-5 mx-5">
@@ -173,7 +201,7 @@ export default class JobForm extends React.Component {
                             <div className="card job-card w-100">
                                 <p>All jobs to select from</p>
                                 <div>
-                                 { this.renderSelectionTable(unassigned_topics) }
+                                    { this.renderSelectionTable(unassigned_topics, existing_topics) }
                                 </div>
                             </div>
                         </div>
@@ -277,12 +305,14 @@ export default class JobForm extends React.Component {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-5">
-                                Selected topics:
-                                <ul>
-                                {topic_list.map(topic => <li>{topic}</li>)}
-                                </ul>
-                            </div>
+                            { (topic_list.length > 0) &&
+                                <div className="col-5">
+                                    Selected topics:
+                                    <ul>
+                                    {topic_list.map(topic => <li>{topic}</li>)}
+                                    </ul>
+                                </div>
+                            }
                         </div>
                     </div>
                     <Button onClick={e => this.handleSubmit(e)} value="Publish" />
@@ -295,6 +325,7 @@ export default class JobForm extends React.Component {
 JobForm.defaultProps = {
     job: {},
     unassigned_topics: [],
+    existing_topics: [],
     onSubmit: () => {},
     setAppState: () => {},
 };
@@ -302,6 +333,7 @@ JobForm.defaultProps = {
 JobForm.propTypes = {
     job: PropTypes.object,
     unassigned_topics: PropTypes.array,
+    existing_topics: PropTypes.array,
     setAppState: PropTypes.func,
     onSubmit: PropTypes.func,
 };

@@ -25,14 +25,12 @@ def validate_fields(obj: Dict[str, str], field_names: List[str]):
 def get_all_deltastreamer_jobs(session) -> List[Dict]:
     print("in get_all_deltastreamer_jobs")
     res = session.query(DeltaStreamerJob).all()
-    # return res
     return [j.formatted_dict() for j in res]
 
 
 def get_deltastreamer_job(session, job_id) -> DeltaStreamerJob:
     print("in get_deltastreamer_job")
     res = session.query(DeltaStreamerJob).get(job_id)
-    print(f"Res is {res.formatted_dict()}")
     return res.formatted_dict()
 
 
@@ -99,12 +97,14 @@ def update_deltastreamer_job(session, job_id: str, args_dict: Dict[str, str]) ->
         ['job_name', 'test_phase', 'job_size', 'updated_by']
     )
 
-    existing_job = get_deltastreamer_job(session, job_id)
+    existing_job = session.query(DeltaStreamerJob).get(job_id)
 
-    existing_job.name = args_dict['job_name']
-    existing_job.name = args_dict['job_name']
-    existing_job.name = args_dict['job_name']
-    existing_job.name = args_dict['job_name']
+    existing_job.job_name = args_dict['job_name']
+    existing_job.test_phase = args_dict['test_phase']
+    existing_job.job_size = args_dict['job_size']
+    existing_job.updated_by = args_dict['updated_by']
+
+    return [args_dict]
 
 
 def insert_ingestion_topic(session, topic_dict: Dict[str, str]):
