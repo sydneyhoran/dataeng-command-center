@@ -93,12 +93,12 @@ def unassigned_topics(Session) -> Response:
     return response
 
 
-def ingestion_topic(db_name: str, schema_name: str, table_name: str, Session) -> Response:
+def ingestion_topic(topic_name: str, Session) -> Response:
     session = Session()
     response = ApiResponse.server_error()
 
     try:
-        print(f"Hello from ingestion_topic in api_helper for {db_name} and {schema_name} and {table_name}")
+        print(f"Hello from ingestion_topic in api_helper for {topic_name}")
         # if request.method == 'GET':
         #     history = query_handler.get_model_history(session, db_name, schema_name, table_name)
         #     response = ApiResponse.success(history)
@@ -110,6 +110,26 @@ def ingestion_topic(db_name: str, schema_name: str, table_name: str, Session) ->
         #     deleted = query_handler.delete_model(session, db_name, schema_name, table_name)
         #     session.commit()
         #     response = ApiResponse.success(deleted)
+    except Exception as e:
+        response = ApiResponse.bad_request(str(e))
+
+    session.close()
+    return response
+
+
+def deltastreamer_job(job_id: str, Session) -> Response:
+    session = Session()
+    response = ApiResponse.server_error()
+
+    try:
+        print(f"Hello from deltastreamer_job in api_helper for job {job_id}")
+        if request.method == 'GET':
+            job = query_handler.get_deltastreamer_job(session, job_id)
+            response = ApiResponse.success(job)
+        elif request.method == 'POST':
+            updated = query_handler.update_deltastreamer_job(session, job_id, request.get_json())
+            session.commit()
+            response = ApiResponse.success(updated)
     except Exception as e:
         response = ApiResponse.bad_request(str(e))
 

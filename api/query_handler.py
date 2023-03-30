@@ -25,9 +25,15 @@ def validate_fields(obj: Dict[str, str], field_names: List[str]):
 def get_all_deltastreamer_jobs(session) -> List[Dict]:
     print("in get_all_deltastreamer_jobs")
     res = session.query(DeltaStreamerJob).all()
-    print(f"Res {res}")
     # return res
     return [j.formatted_dict() for j in res]
+
+
+def get_deltastreamer_job(session, job_id) -> DeltaStreamerJob:
+    print("in get_deltastreamer_job")
+    res = session.query(DeltaStreamerJob).get(job_id)
+    print(f"Res is {res.formatted_dict()}")
+    return res.formatted_dict()
 
 
 def get_all_ingestion_topics(session) -> List[Dict]:
@@ -37,7 +43,7 @@ def get_all_ingestion_topics(session) -> List[Dict]:
 
 
 def get_unassigned_topics(session) -> List[Dict]:
-    res = session.query(IngestionTopic).filter(IngestionTopic.deltastreamer_job_name == "unassigned_topics")
+    res = session.query(IngestionTopic).filter(IngestionTopic.deltastreamer_job_id == 1)
     return [t.formatted_dict() for t in res]
 
 
@@ -85,6 +91,20 @@ def create_deltastreamer_job(session, args_dict: Dict[str, str]) -> List[Dict]:
     job_dict['updated_at'] = job_dict['updated_at'].isoformat()
     job_dict['created_at'] = job_dict['created_at'].isoformat()
     return [job_dict]
+
+
+def update_deltastreamer_job(session, job_id: str, args_dict: Dict[str, str]) -> List[Dict]:
+    validate_fields(
+        args_dict,
+        ['job_name', 'test_phase', 'job_size', 'updated_by']
+    )
+
+    existing_job = get_deltastreamer_job(session, job_id)
+
+    existing_job.name = args_dict['job_name']
+    existing_job.name = args_dict['job_name']
+    existing_job.name = args_dict['job_name']
+    existing_job.name = args_dict['job_name']
 
 
 def insert_ingestion_topic(session, topic_dict: Dict[str, str]):

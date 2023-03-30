@@ -19,7 +19,8 @@ export default class App extends React.Component {
     this.state = {
         alerts: [],
         deltastreamerJobs: [],
-        unassigned_topics: [],
+//        unassigned_topics: [],
+//        job: {},
         loading: false,
     };
 
@@ -70,7 +71,8 @@ export default class App extends React.Component {
   render() {
     const {
       deltastreamerJobs,
-      unassigned_topics,
+//      unassigned_topics,
+//      job,
       loading,
       alerts
     } = this.state;
@@ -79,13 +81,14 @@ export default class App extends React.Component {
       setAppState: this.setAppState,
       triggerAlert: this.triggerAlert,
       deltastreamerJobs,
-      unassigned_topics
+//      unassigned_topics,
+//      job
     };
 
     return (
 
-        <div class="container py-3 px-0 my-3 mx-auto bg-metal rounded w-100">
-                <div class="mx-4">
+        <div className="container py-3 px-0 my-3 mx-auto bg-metal rounded w-100">
+                <div className="mx-4">
                     <p>
                         Welcome to the Streaming Command Center!
                     </p>
@@ -108,8 +111,12 @@ export default class App extends React.Component {
                   render={props => <JobEditor {...props} {...app_defaults} />}
                 />
                 <Route
-                  path="/edit/ingestion_topic/:db_name/:schema_name/:table_name"
+                  path="/edit/ingestion_topic/:topic_id"
                   render={props => <TopicEditor {...props} {...app_defaults} />}
+                />
+                <Route
+                  path="/edit/deltastreamer_job/:job_id"
+                  render={props => <JobEditor {...props} {...app_defaults} />}
                 />
         </div>
     );

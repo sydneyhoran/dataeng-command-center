@@ -59,8 +59,9 @@ def create_ingestion_topic(session, topic_dict: Dict[str, str], return_result=Fa
     print(f"Adding new topic {new_topic}")
     session.add(new_topic)
     session.commit()
+    print(f"ID of new topic {new_topic.id}")
     if return_result:
-        return new_topic.formatted_dict()
+        return new_topic
 
 
 def create_deltastreamer_job(session, job_dict: Dict[str, str], return_result=False):
@@ -72,46 +73,52 @@ def create_deltastreamer_job(session, job_dict: Dict[str, str], return_result=Fa
     )
     # if job_dict['ingestion_topics'] is not None:
     #     new_job.ingestion_topics.extend(job_dict['ingestion_topics'])
-    print(f"Adding new topic {new_job}")
+    print(f"Adding new job {new_job}")
     session.add(new_job)
-    # session.commit()
+    session.commit()
+    print(f"ID of new job {new_job.id}")
     if return_result:
-        return new_job.formatted_dict()
+        return new_job
 
 
-def add_topics_to_job(session, job_name, ingestion_topics):
-    print(f"Adding {ingestion_topics} to job {job_name}")
-    job = session.query(DeltaStreamerJob).filter(DeltaStreamerJob.job_name == job_name).one()
-    job.ingestion_topics.extend(ingestion_topics)
+def add_topic_to_job(session, job_id, topic_id):
+    print(f"Adding topic {topic_id} to job {job_id}")
+    job = session.query(DeltaStreamerJob).get(job_id)
+    topic = session.query(IngestionTopic).get(topic_id)
+    job.ingestion_topics.append(topic)
+    session.commit()
 
 
 Session = init_session()
 
 sql_session = Session()
 
-create_deltastreamer_job(
-    session=sql_session,
-    job_dict={
-        "job_name": "deltastreamer_identity_history_account_activities",
-        "test_phase": "complete",
-        "job_size": "lg",
-        "updated_by": "sydney",
-    }
-)
-sql_session.commit()
-
-create_deltastreamer_job(
+job1 = create_deltastreamer_job(
     session=sql_session,
     job_dict={
         "job_name": "unassigned_topics",
         "test_phase": "complete",
         "job_size": "xs",
         "updated_by": "sydney",
-    }
+    },
+    return_result=True
 )
-sql_session.commit()
 
-create_ingestion_topic(
+job2 = create_deltastreamer_job(
+    session=sql_session,
+    job_dict={
+        "job_name": "deltastreamer_identity_history_account_activities",
+        "test_phase": "complete",
+        "job_size": "lg",
+        "updated_by": "sydney",
+    },
+    return_result=True
+)
+# sql_session.commit()
+print(job1.id)
+print(job2.id)
+
+topic1 = create_ingestion_topic(
     session=sql_session,
     topic_dict={
         # "db_name": "identity",
@@ -125,9 +132,10 @@ create_ingestion_topic(
         "deltastreamer_job_name": None,
         "updated_by": "sydney",
     },
-    return_result=False
+    return_result=True
 )
-create_ingestion_topic(
+
+topic2 = create_ingestion_topic(
     session=sql_session,
     topic_dict={
         # "db_name": "identity",
@@ -141,17 +149,21 @@ create_ingestion_topic(
         "deltastreamer_job_name": None,
         "updated_by": "sydney"
     },
-    return_result=False
+    return_result=True
 )
-sql_session.commit()
+# sql_session.commit()
+print(topic1.id)
+print(topic2.id)
 
-ingestion_topics_job_1 = sql_session.query(IngestionTopic).filter(IngestionTopic.topic_name == "identity.public_history.account_activities").all()
+# ingestion_topics_job_1 = sql_session.query(IngestionTopic).get(topic1.id)
 
-print(f"Topics: {[t.formatted_dict() for t in ingestion_topics_job_1]}")
+# print(f"Topic: {ingestion_topics_job_1.formatted_dict()}")
 
-add_topics_to_job(sql_session, "deltastreamer_identity_history_account_activities", ingestion_topics_job_1)
+# print(f"Topics: {[t.formatted_dict() for t in ingestion_topics_job_1]}")
 
-sql_session.commit()
+add_topic_to_job(sql_session, job1.id, topic1.id)
+#
+# sql_session.commit()
 
 # job_1 = sql_session.query(DeltaStreamerJob).get("deltastreamer_identity_history_account_activities")
 # print(job_1.formatted_dict())

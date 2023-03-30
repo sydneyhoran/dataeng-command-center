@@ -13,7 +13,8 @@ class DeltaStreamerJob(Base):
     __tablename__ = "scc_deltastreamer_jobs"
     # __table_args__ = {'schema': 'command_center'}
 
-    job_name = Column(String(255), nullable=False, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    job_name = Column(String(255), nullable=False)
     test_phase = Column(String(255), nullable=False)
     job_size = Column(String(255), nullable=False)
     ingestion_topics = relationship('IngestionTopic', backref='deltastreamer_job')
@@ -29,6 +30,7 @@ class DeltaStreamerJob(Base):
         unformatted = self.__dict__
 
         return {
+            'id': unformatted['id'],
             'job_name': unformatted['job_name'],
             'test_phase': unformatted['test_phase'],
             'job_size': unformatted['job_size'],
@@ -45,7 +47,8 @@ class IngestionTopic(Base):
     #     ForeignKeyConstraint(['deltastreamer_job_name'], [DeltaStreamerJob.job_name]),
     # )
 
-    topic_name = Column(String(255), nullable=False, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    topic_name = Column(String(255), nullable=False)
     # db_name = Column(String(255), nullable=False, primary_key=True)
     # schema_name = Column(String(255), nullable=False, primary_key=True)
     # table_name = Column(String(255), nullable=False, primary_key=True)
@@ -54,7 +57,7 @@ class IngestionTopic(Base):
     record_key = Column(String(255), nullable=False)
     partition_path_field = Column(String(255), nullable=False)
     timestamp_format = Column(String(255), nullable=False, default="EPOCHMICROSECONDS")
-    deltastreamer_job_name = Column(String(255), ForeignKey('scc_deltastreamer_jobs.job_name'), default="unassigned_topics")
+    deltastreamer_job_id = Column(Integer, ForeignKey('scc_deltastreamer_jobs.id'), default=1)
     # deltastreamer_job_id = Column(Integer, ForeignKey('scc_deltastreamer_jobs.id'), nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.current_timestamp())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.current_timestamp())
@@ -67,6 +70,7 @@ class IngestionTopic(Base):
         unformatted = self.__dict__
 
         return {
+            'id': unformatted['id'],
             'topic_name': unformatted['topic_name'],
             'db_name': unformatted['topic_name'].split('.')[0],
             'schema_name': unformatted['topic_name'].split('.')[1],

@@ -43,14 +43,14 @@ export default class ListLayout extends React.Component {
 
     renderTopicCard(topic) {
         return(
-            <div class="card topic-card card-rounded p-2 m-1">
-              <div class="card-title">
+            <div className="card topic-card card-rounded p-2 m-1">
+              <div className="card-title">
                 <strong>Topic:</strong> {topic.topic_name}
               </div>
-              <div class="card-body m-1 p-1">
-                <table class="w-100">
+              <div className="card-body m-1 p-1">
+                <table className="w-100">
                     <thead>
-                        <tr role="row" class="code">
+                        <tr role="row" className="code">
                             <th ref={React.createRef()} width="30%">source_ordering_field</th>
                             <th ref={React.createRef()} width="30%">partition_path_field</th>
                             <th ref={React.createRef()} width="20%">record_key</th>
@@ -58,7 +58,7 @@ export default class ListLayout extends React.Component {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr role="row" class="code">
+                        <tr role="row" className="code">
                             <td>{topic.source_ordering_field}</td>
                             <td>{topic.record_key}</td>
                             <td>{topic.partition_path_field}</td>
@@ -72,25 +72,27 @@ export default class ListLayout extends React.Component {
     }
 
     renderJobCard(job) {
+        console.log("Job is is " + job.id);
         return(
-            <div class="card job-card p-2 m-5">
-              <div class="card-title m-1">
+            <div className="card job-card p-2 m-5">
+              <div className="card-title m-1 position-relative">
                 <strong>{job.job_name}</strong>
+                <Link to={`/edit/deltastreamer_job/${job.id}`}><i className="fas fa-pen"></i></Link>
               </div>
-              <div class="card-body m-1 p-1">
-                <table class="w-100">
+              <div className="card-body m-1 p-1">
+                <table className="w-100">
                     <thead>
-                        <tr role="row" class="code">
+                        <tr role="row" className="code">
                             <th ref={React.createRef()} width="50%">Job Size</th>
                             <th ref={React.createRef()} width="50%">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr role="row" class="code">
+                        <tr role="row" className="code">
                             <td>{job.job_size}</td>
                             <td>{job.test_phase}</td>
                         </tr>
-                        <tr role="row" class="code">
+                        <tr role="row" className="code">
                             <td colspan="2">{job.ingestion_topics.map(topic => this.renderTopicCard(topic))}</td>
                         </tr>
                     </tbody>
@@ -110,8 +112,8 @@ export default class ListLayout extends React.Component {
             console.log("Deltastreamer jobs" + deltastreamerJobs)
             return (
                 <div>
-                    <div class="row w-100">
-                        <div class="col-lg-11">
+                    <div className="row w-100">
+                        <div className="col-lg-11">
                             <h1>Current Deltastreamer Jobs</h1>
                         </div>
 

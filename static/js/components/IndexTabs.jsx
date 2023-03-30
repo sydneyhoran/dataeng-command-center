@@ -35,7 +35,7 @@ export default class IndexTabs extends React.Component {
   }
 
   render() {
-    const {history} = this.props;
+    const { match: { params }, history} = this.props;
     const {tab} = this.state;
     return (
         <div>
@@ -50,7 +50,7 @@ export default class IndexTabs extends React.Component {
                     onChange={this.handleTabChange}
                 />
             </div>
-            <div class="mx-4 py-4">
+            <div className="mx-4 py-4">
                 {
                   {
                     [INDEX_TABS.jobs]: (<DeltastreamerList {...this.props} />),

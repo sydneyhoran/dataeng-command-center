@@ -104,6 +104,12 @@ def unassigned_topics():
     return api_helper.unassigned_topics(Session)
 
 
-@app.route('/api/v1/ingestion_topics/<db_name>/<schema_name>/<table_name>', methods=['GET', 'POST', 'DELETE'])
-def ingestion_topic(db_name, schema_name, table_name):
-    return api_helper.ingestion_topic(db_name, schema_name, table_name, Session)
+@app.route('/api/v1/ingestion_topics/<topic_id>', methods=['GET', 'POST', 'DELETE'])
+def ingestion_topic(topic_id):
+    return api_helper.ingestion_topic(topic_id, Session)
+
+
+@app.route('/api/v1/deltastreamer_jobs/<job_id>', methods=['GET', 'POST', 'DELETE'])
+def deltastreamer_job(job_id):
+    print(f"In deltastreamer_job in app.py, job_id is {job_id}")
+    return api_helper.deltastreamer_job(job_id, Session)

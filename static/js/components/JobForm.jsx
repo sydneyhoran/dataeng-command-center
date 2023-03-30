@@ -8,7 +8,8 @@ import * as utils from '../lib/utils';
 export default class JobForm extends React.Component {
     constructor(props) {
         super(props);
-        const { job } = props;
+        const { job, unassigned_topics } = props;
+        console.log("\n\nIn JobForm constructor, job is " + JSON.stringify(job))
         this.state = {
             current: this.formatJobProps(job),
             initial: this.formatJobProps(job),
@@ -20,26 +21,10 @@ export default class JobForm extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         const { job } = nextProps;
+        console.log("JobForm is receiving next props, job:" + JSON.stringify(job));
         const formatted_props = this.formatJobProps(job);
+        console.log("JobForm is receiving next props " + JSON.stringify(formatted_props));
         this.setState({ current: formatted_props, initial: formatted_props });
-    }
-
-    componentDidMount() {
-        const {
-            unassigned_topics,
-            setAppState,
-        } = this.props;
-        setAppState({ loading: true });
-        utils.getRequest(
-            'unassigned_topics',
-            (u_topics) => {
-                setAppState({ loading: false, unassigned_topics: u_topics });
-            },
-            (resp) => {
-                triggerAlert(`Error loading topics - ${resp.response.data.response.error}`);
-                console.log(`Could not load the topics - ${resp.response.data.response.error}`);
-            },
-        );
     }
 
     formatJobProps(job) {
@@ -72,14 +57,14 @@ export default class JobForm extends React.Component {
 
     renderTopicCard(topic) {
         return(
-            <div class="card topic-card card-rounded p-2 m-1">
-              <div class="card-title">
+            <div className="card topic-card card-rounded p-2 m-1">
+              <div className="card-title">
                 <strong>Topic:</strong> {topic.topic_name}
               </div>
-              <div class="card-body m-1 p-1">
-                <table class="w-100">
+              <div className="card-body m-1 p-1">
+                <table className="w-100">
                     <thead>
-                        <tr role="row" class="code">
+                        <tr role="row" className="code">
                             <th ref={React.createRef()} width="30%">source_ordering_field</th>
                             <th ref={React.createRef()} width="30%">partition_path_field</th>
                             <th ref={React.createRef()} width="20%">record_key</th>
@@ -87,7 +72,7 @@ export default class JobForm extends React.Component {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr role="row" class="code">
+                        <tr role="row" className="code">
                             <td>{topic.source_ordering_field}</td>
                             <td>{topic.record_key}</td>
                             <td>{topic.partition_path_field}</td>
@@ -104,7 +89,7 @@ export default class JobForm extends React.Component {
         return (
             <tr role="row" key={`${topic.topic_name}`}>
                 <td>
-                    <div class="form-check form-switch">
+                    <div className="form-check form-switch">
                         <input
                             type="checkbox"
                             onChange={this.handleTopicSelectionChange}
@@ -165,6 +150,8 @@ export default class JobForm extends React.Component {
     }
 
     render() {
+//        console.log("In JobForm render(), Props are " + JSON.stringify(this.props));
+//        console.log("In JobForm render(), State is " + JSON.stringify(this.state));
         const { job, unassigned_topics } = this.props;
         const {
             current,
@@ -178,23 +165,23 @@ export default class JobForm extends React.Component {
             initial,
         } = this.state;
         return(
-            <div class="job-card px-5 mx-5">
+            <div className="job-card px-5 mx-5">
                 <p>You are now editing a job</p>
                 <form>
-                    <div class="container w-100">
-                        <div class="row mb-3 w-100">
-                            <div class="card job-card w-100">
+                    <div className="container w-100">
+                        <div className="row mb-3 w-100">
+                            <div className="card job-card w-100">
                                 <p>All jobs to select from</p>
                                 <div>
                                  { this.renderSelectionTable(unassigned_topics) }
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-7">
+                        <div className="row">
+                            <div className="col-7">
                                 <div className="left-form">
                                     <div className="form-group">
-                                        <label>
+                                        <label className="w-100">
                                             Job Name
                                             <input
                                                 value={job_name}
@@ -205,10 +192,10 @@ export default class JobForm extends React.Component {
                                             />
                                         </label>
                                     </div>
-                                    <div class="btn-group btn-group-toggle" className="form-group">
+                                    <div className="form-group">
                                         <label>
                                         Job Size <br/>
-                                        <label class="btn btn-secondary">
+                                        <label className="btn btn-secondary">
                                         <input
                                                   type="radio"
                                                   onChange={this.handleInputChange}
@@ -218,7 +205,7 @@ export default class JobForm extends React.Component {
                                                   checked={job_size === "xs"} />
                                             X-Small
                                         </label>
-                                        <label class="btn btn-secondary">
+                                        <label className="btn btn-secondary">
                                             <input
                                                   type="radio"
                                                   onChange={this.handleInputChange}
@@ -228,7 +215,7 @@ export default class JobForm extends React.Component {
                                                   checked={job_size === "sm"} />
                                                 Small
                                         </label>
-                                        <label class="btn btn-secondary">
+                                        <label className="btn btn-secondary">
                                             <input
                                                   type="radio"
                                                   onChange={this.handleInputChange}
@@ -238,7 +225,7 @@ export default class JobForm extends React.Component {
                                                   checked={job_size === "md"} />
                                                  Medium
                                         </label>
-                                        <label class="btn btn-secondary">
+                                        <label className="btn btn-secondary">
                                             <input
                                                   type="radio"
                                                   onChange={this.handleInputChange}
@@ -250,10 +237,10 @@ export default class JobForm extends React.Component {
                                             </label>
                                         </label>
                                     </div>
-                                    <div class="btn-group btn-group-toggle" className="form-group">
+                                    <div className="form-group">
                                         <label>
                                             Test Phase <br/>
-                                            <label class="btn btn-light">
+                                            <label className="btn btn-light">
                                                 <input
                                                       type="radio"
                                                       onChange={this.handleInputChange}
@@ -263,7 +250,7 @@ export default class JobForm extends React.Component {
                                                       checked={test_phase === "initial"} />
                                                 Initial
                                             </label>
-                                            <label class="btn btn-dark">
+                                            <label className="btn btn-dark">
                                                 <input
                                                       type="radio"
                                                       onChange={this.handleInputChange}
@@ -290,7 +277,7 @@ export default class JobForm extends React.Component {
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-5">
+                            <div className="col-5">
                                 Selected topics:
                                 <ul>
                                 {topic_list.map(topic => <li>{topic}</li>)}

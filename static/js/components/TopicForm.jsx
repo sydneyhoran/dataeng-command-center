@@ -97,7 +97,7 @@ export default class TopicForm extends React.Component {
             initial,
         } = this.state;
         return(
-                <div class="job-card px-5 mx-5">
+                <div className="job-card px-5 mx-5">
                     <p>You are now editing a topic</p>
                     <form>
                         <div className="left-form">
@@ -146,18 +146,18 @@ export default class TopicForm extends React.Component {
                                 />
                             </label>
                         </div>
-                        <div class="btn-group btn-group-toggle" className="form-group">
-                            <label class="btn btn-secondary">
+                        <div className="form-group">
+                            <label className="btn btn-secondary">
                                 <input
                                   type="radio"
                                   onChange={this.handleInputChange}
                                   name="table_size"
-                                  className="form-control"
+                                  class="form-control"
                                   value="xs"
                                   checked={table_size === "xs"} />
                                  X-Small
                             </label>
-                            <label class="btn btn-secondary">
+                            <label className="btn btn-secondary">
                                 <input
                                   type="radio"
                                   onChange={this.handleInputChange}
@@ -167,7 +167,7 @@ export default class TopicForm extends React.Component {
                                   checked={table_size === "sm"} />
                                  Small
                             </label>
-                            <label class="btn btn-secondary">
+                            <label className="btn btn-secondary">
                                 <input
                                   type="radio"
                                   onChange={this.handleInputChange}
@@ -177,7 +177,7 @@ export default class TopicForm extends React.Component {
                                   checked={table_size === "md"} />
                                  Medium
                             </label>
-                            <label class="btn btn-secondary">
+                            <label className="btn btn-secondary">
                                 <input
                                   type="radio"
                                   onChange={this.handleInputChange}
@@ -188,8 +188,8 @@ export default class TopicForm extends React.Component {
                                  Large
                             </label>
                         </div>
-                        <div class="btn-group btn-group-toggle" className="form-group">
-                            <label class="btn btn-light">
+                        <div className="form-group">
+                            <label className="btn btn-light">
                                 <input
                                   type="radio"
                                   onChange={this.handleInputChange}
@@ -199,7 +199,7 @@ export default class TopicForm extends React.Component {
                                   checked={multi_flag === "false"} />
                                  SingleTable
                             </label>
-                            <label class="btn btn-dark">
+                            <label className="btn btn-dark">
                                 <input
                                   type="radio"
                                   onChange={this.handleInputChange}
@@ -275,3 +275,5 @@ TopicForm.propTypes = {
     topic: PropTypes.object,
     onSubmit: PropTypes.func,
 };
+
+//btn-group btn-group-toggle
