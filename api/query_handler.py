@@ -15,7 +15,7 @@ def validate_fields(obj: Dict[str, str], field_names: List[str]):
     print("in validate_fields in query_handler.py")
     invalid_fields = []
     for field in field_names:
-        if not obj.get(field):
+        if obj.get(field) is None:
             invalid_fields.append(field)
 
     if len(invalid_fields):
@@ -45,32 +45,52 @@ def get_unassigned_topics(session) -> List[Dict]:
     return [t.formatted_dict() for t in res]
 
 
-def add_topic_to_job(session, job_name, topic_name):
-    print(f"Adding {topic_name} to job {job_name}")
-    topic = session.query(IngestionTopic).filter(
-        IngestionTopic.topic_name == topic_name
-    ).one()
-    job = session.query(DeltaStreamerJob).filter(DeltaStreamerJob.job_name == job_name).one()
+def add_topic_to_job(session, job_id, topic_id):
+    job = session.query(DeltaStreamerJob).get(job_id)
+    topic = session.query(IngestionTopic).get(topic_id)
     job.ingestion_topics.append(topic)
+    # session.commit()
 
 
-def insert_deltastreamer_job(session, job_dict: Dict[str, str]):
-    print(f"About to add new job {job_dict}")
+def sync_ingestion_topics(session, existing_job, new_topic_list):
+    existing_topic_names = [t.topic_name for t in existing_job.ingestion_topics]
+    all_topics = set(existing_topic_names).union(set(new_topic_list))
+    to_keep = set(existing_topic_names).intersection(set(new_topic_list))
+    to_remove = set(existing_topic_names) - set(new_topic_list)
+    to_add = list(all_topics - to_keep - to_remove)
+    for topic in to_remove:
+        topic_to_modify = session.query(IngestionTopic).filter(IngestionTopic.topic_name == topic).one()
+        topic_to_modify.deltastreamer_job_id = 1
+        session.commit()
+    for topic in to_add:
+        topic_to_add = session.query(IngestionTopic).filter(IngestionTopic.topic_name == topic).one()
+        add_topic_to_job(session, existing_job.id, topic_to_add.id)
+        session.commit()
+
+
+def set_topics_active_status(job, value):
+    for topic in job.ingestion_topics:
+        topic.is_active = value
+
+
+def insert_deltastreamer_job(session, job_dict: Dict[str, str], return_result=False):
     new_job = DeltaStreamerJob(
         job_name=job_dict['job_name'],
-        test_phase=job_dict['test_phase'],
+        # is_active=job_dict['is_active'],
         job_size=job_dict['job_size'],
         created_at=job_dict['created_at'],
         updated_at=job_dict['updated_at'],
         updated_by=job_dict['updated_by'],
     )
     session.add(new_job)
+    if return_result:
+        return new_job
 
 
 def create_deltastreamer_job(session, args_dict: Dict[str, str]) -> List[Dict]:
     validate_fields(
         args_dict,
-        ['job_name', 'test_phase', 'job_size', 'updated_by']
+        ['job_name', 'job_size', 'updated_by']
     )
 
     job_dict = {
@@ -79,12 +99,13 @@ def create_deltastreamer_job(session, args_dict: Dict[str, str]) -> List[Dict]:
         'updated_at': datetime.datetime.now()
     }
 
-    insert_deltastreamer_job(session, job_dict)
-    session.commit()
+    new_job = insert_deltastreamer_job(session, job_dict, return_result=True)
 
     if ('topic_list' in job_dict) and (len(job_dict['topic_list']) > 0):
+        session.commit()
         for topic in job_dict['topic_list']:
-            add_topic_to_job(session, job_dict['job_name'], topic)
+            add_topic_to_job(session, new_job.id, topic.id)
+            session.commit()
 
     job_dict['updated_at'] = job_dict['updated_at'].isoformat()
     job_dict['created_at'] = job_dict['created_at'].isoformat()
@@ -94,25 +115,39 @@ def create_deltastreamer_job(session, args_dict: Dict[str, str]) -> List[Dict]:
 def update_deltastreamer_job(session, job_id: str, args_dict: Dict[str, str]) -> List[Dict]:
     validate_fields(
         args_dict,
-        ['job_name', 'test_phase', 'job_size', 'updated_by']
+        ['job_name', 'job_size', 'updated_by']
     )
 
     existing_job = session.query(DeltaStreamerJob).get(job_id)
 
     existing_job.job_name = args_dict['job_name']
-    existing_job.test_phase = args_dict['test_phase']
+    # existing_job.is_active = args_dict['is_active']
     existing_job.job_size = args_dict['job_size']
     existing_job.updated_by = args_dict['updated_by']
+    existing_job.updated_at = datetime.datetime.now()
+
+    if 'topic_list' in args_dict:
+        sync_ingestion_topics(session, existing_job, args_dict['topic_list'])
+
+    # check if we need to turn off or on all jobs
+    if existing_job.check_active_topics() and (args_dict['is_active'] is False):
+        session.commit()
+        print("Need to flip topics to false")
+        set_topics_active_status(existing_job, False)
+    elif not existing_job.check_active_topics() and (args_dict['is_active'] is True):
+        session.commit()
+        print("Need to flip topics to true")
+        set_topics_active_status(existing_job, True)
+
+    session.commit()
 
     return [args_dict]
 
 
-def insert_ingestion_topic(session, topic_dict: Dict[str, str]):
+def insert_ingestion_topic(session, topic_dict: Dict[str, str], return_result=True):
     new_topic = IngestionTopic(
-        # db_name=topic_dict['db_name'],
-        # schema_name=topic_dict['schema_name'],
-        # table_name=topic_dict['table_name'],
         topic_name=topic_dict['topic_name'],
+        is_active=topic_dict['is_active'],
         table_size=topic_dict['table_size'],
         source_ordering_field=topic_dict['source_ordering_field'],
         record_key=topic_dict['record_key'],
@@ -123,6 +158,8 @@ def insert_ingestion_topic(session, topic_dict: Dict[str, str]):
     )
     print(f"Added new topic {new_topic}")
     session.add(new_topic)
+    if return_result:
+        return new_topic
 
 
 def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
@@ -130,11 +167,9 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
     validate_fields(
         args_dict,
         [
-            # 'db_name',
-            # 'schema_name',
-            # 'table_name',
             'topic_name',
             'table_size',
+            'is_active',
             'source_ordering_field',
             'record_key',
             'partition_path_field',
@@ -143,9 +178,6 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
     )
 
     res = session.query(IngestionTopic).filter(
-        # IngestionTopic.db_name == args_dict['db_name'],
-        # IngestionTopic.schema_name == args_dict['schema_name'],
-        # IngestionTopic.table_name == args_dict['table_name'],
         IngestionTopic.topic_name == args_dict['topic_name']
     ).all()
 
@@ -158,20 +190,26 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
         'updated_at': datetime.datetime.now()
     }
 
-    insert_ingestion_topic(session, topic_dict)
+    new_topic = insert_ingestion_topic(session, topic_dict, return_result=True)
     session.commit()
 
     if args_dict['multi_flag'] == "false":
         new_job_name = f"deltastreamer_{args_dict['topic_name'].replace('.', '_')}"
         print(f"Creating new DeltaStreamer job {new_job_name}")
-        new_job_args_dict = {
+        new_job_dict = {
             'job_name': new_job_name,
-            'test_phase': 'initial',
+            # 'is_active': args_dict['is_active'],
             'job_size': args_dict['table_size'],
             'updated_by': args_dict['updated_by']
         }
-        create_deltastreamer_job(session, new_job_args_dict)
-        add_topic_to_job(session, new_job_name, topic_dict['topic_name'])
+        job_dict = {
+            **new_job_dict,
+            'created_at': datetime.datetime.now(),
+            'updated_at': datetime.datetime.now()
+        }
+        new_job = insert_deltastreamer_job(session, job_dict, return_result=True)
+        session.commit()
+        add_topic_to_job(session, new_job.id, new_topic.id)
 
     topic_dict['updated_at'] = topic_dict['updated_at'].isoformat()
     topic_dict['created_at'] = topic_dict['created_at'].isoformat()

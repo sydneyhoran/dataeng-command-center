@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Link } from 'react-router-dom';
+import Select from 'react-select';
 
 //import DeleteButton from './DeleteButton';
 
@@ -11,12 +12,13 @@ export default class ListLayout extends React.Component {
     constructor(props) {
         super(props);
         const { for_tab } = this.props;
-
-        if (for_tab === 2) {
-            this.state = {
-                template_counts: {},
-            };
-        }
+        this.state = {
+            filter: "",
+            displayed_jobs: [],
+            filter_options: []
+        };
+        this.getFilterOptions = this.getFilterOptions.bind(this);
+        this.getFilterOptions = this.handleFilterChange.bind(this);
     }
 
     componentDidMount() {
@@ -32,6 +34,8 @@ export default class ListLayout extends React.Component {
                 (jobs) => {
                     setAppState({ loading: false });
                     setAppState({ deltastreamerJobs: jobs });
+
+                    this.getFilterOptions(jobs);
                 },
                 (resp) => {
                     triggerAlert(`Error loading jobs - ${resp.response.data.response.error}`);
@@ -41,11 +45,34 @@ export default class ListLayout extends React.Component {
        }
     }
 
+    getFilterOptions(jobs) {
+        console.log("In getFilterOptions, jobs are " + JSON.stringify(jobs));
+    }
+
+    handleFilterChange(e) {
+        console.log("In handleFilterChange, target is " + JSON.stringify(e));
+    }
+
     renderTopicCard(topic) {
         return(
             <div className="card topic-card card-rounded p-2 m-1">
-              <div className="card-title">
-                <strong>Topic:</strong> {topic.topic_name}
+              <div className="card-title container">
+                <div className="row">
+                    <div classNAme="col-11">
+                        <strong>Topic:</strong> {topic.topic_name}
+                    </div>
+                    <div className="col-1">
+                        <div className="custom-control custom-switch">
+                            <input
+                                type="checkbox"
+                                className="custom-control-input"
+                                id={`${topic.topic_name}_switch`}
+                                checked={topic.is_active}
+                                disabled />
+                            <label class="custom-control-label" for={`${topic.topic_name}_switch`}></label>
+                        </div>
+                    </div>
+                </div>
               </div>
               <div className="card-body m-1 p-1">
                 <table className="w-100">
@@ -72,12 +99,11 @@ export default class ListLayout extends React.Component {
     }
 
     renderJobCard(job) {
-        console.log("Job is is " + job.id);
         return(
             <div className="card job-card p-2 m-5">
               <div className="card-title m-1 position-relative">
                 <strong>{job.job_name}</strong>
-                <Link to={`/edit/deltastreamer_job/${job.id}`}><i className="fas fa-pen"></i></Link>
+                <Link to={job.id != 1 ? `/edit/deltastreamer_job/${job.id}` : '#'}><i className="fas fa-pen"></i></Link>
               </div>
               <div className="card-body m-1 p-1">
                 <table className="w-100">
@@ -90,7 +116,17 @@ export default class ListLayout extends React.Component {
                     <tbody>
                         <tr role="row" className="code">
                             <td>{job.job_size}</td>
-                            <td>{job.test_phase}</td>
+                            <td>
+                                <div class="custom-control custom-switch">
+                                  <input
+                                    type="checkbox"
+                                    class="custom-control-input"
+                                    id={`${job.job_name}_switch`}
+                                    checked={job.has_active_topics}
+                                    disabled />
+                                  <label class="custom-control-label" for={`${job.job_name}_switch`}></label>
+                                </div>
+                            </td>
                         </tr>
                         <tr role="row" className="code">
                             <td colspan="2">{job.ingestion_topics.map(topic => this.renderTopicCard(topic))}</td>
@@ -109,15 +145,27 @@ export default class ListLayout extends React.Component {
                 deltastreamerJobs,
                 ingestionTopics
             } = this.props;
-            console.log("Deltastreamer jobs" + deltastreamerJobs)
+            const {
+                filter_options,
+            } = this.state;
             return (
                 <div>
                     <div className="row w-100">
                         <div className="col-lg-11">
                             <h1>Current Deltastreamer Jobs</h1>
                         </div>
-
                     </div>
+                    { filter_options &&
+                    <div className="row w-100">
+                          <Select
+                            placeholder="filter"
+                            name="filter"
+                            value={{ label: "Filter By Source DB" , value: "filter" }}
+                            onChange={this.handleFilterChange}
+                            options={['identity', 'payments', 'vegas', 'edgebook_ca_on']}
+                          />
+                    </div>
+                    }
                     {deltastreamerJobs.map(job => this.renderJobCard(job))}
                 </div>
             );

@@ -16,6 +16,7 @@ export default class JobForm extends React.Component {
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleInputClick = this.handleInputClick.bind(this);
         this.handleTopicSelectionChange = this.handleTopicSelectionChange.bind(this);
     }
 
@@ -28,7 +29,11 @@ export default class JobForm extends React.Component {
             existing_topics: job.ingestion_topics
         }, () => {
             if (job.ingestion_topics) {
-                job.ingestion_topics.map(topic => this.addItemToTopicList(topic.topic_name));
+                var topicArray = job.ingestion_topics.map(function(item) { return item["topic_name"]; });
+                this.initializeTopicList(topicArray);
+//                job.ingestion_topics.map(topic => {
+//                    const ret = this.addItemToTopicList(topic.topic_name);
+//                });
             }
         });
     }
@@ -38,7 +43,7 @@ export default class JobForm extends React.Component {
             job_name: job.job_name || 'deltastreamer_',
             topic_list: job.topic_list || [],
             job_size: job.job_size || 'xs',
-            test_phase: job.test_phase || 'initial',
+            is_active: job.has_active_topics || false,
             updated_by: job.updated_by || ''
         }
         return ret
@@ -54,22 +59,43 @@ export default class JobForm extends React.Component {
         });
     }
 
+    handleInputClick(name) {
+        return () => {
+          const { current } = this.state;
+          let update_payload = { [name]: !current[name] }
+          const updated = Object.assign({}, current, update_payload);
+          this.setState({ current: updated });
+        }
+    }
+
     handleTopicSelectionChange(e) {
         this.addItemToTopicList(e.target.id);
     }
 
-    addItemToTopicList(topic_name) {
+    initializeTopicList(initial_topics) {
         const { current } = this.state;
         const { topic_list } = {...this.state.current};
-        let newArray = [...topic_list, topic_name];
-        if (topic_list.includes(topic_name)) {
-            newArray = newArray.filter(array_item => array_item !== topic_name);
-        }
+        let newArray = [...topic_list, ...initial_topics];
         const updated = Object.assign({}, current, { topic_list: newArray } );
         this.setState({
-            current: updated
-        }, () => {
-        });
+                current: updated
+            }, () => {
+            });
+    }
+
+    addItemToTopicList(topic_name) {
+            const { current } = this.state;
+            const { topic_list } = {...this.state.current};
+            let newArray = [...topic_list, topic_name];
+            if (topic_list.includes(topic_name)) {
+                newArray = newArray.filter(array_item => array_item !== topic_name);
+            }
+            const updated = Object.assign({}, current, { topic_list: newArray } );
+            this.setState({
+                current: updated
+            }, () => {
+            });
+
     }
 
     handleSubmit(e) {
@@ -79,7 +105,7 @@ export default class JobForm extends React.Component {
 //        const keys = [
 //            'job_name',
 //            'job_size',
-//            'test_phase',
+//            'is_active',
 //            'updated_by',
 //        ]
 //        keys.forEach((key) => {
@@ -186,7 +212,7 @@ export default class JobForm extends React.Component {
                 job_name,
                 job_size,
                 topic_list,
-                test_phase,
+                is_active,
                 updated_by,
             },
             initial,
@@ -267,28 +293,18 @@ export default class JobForm extends React.Component {
                                     </div>
                                     <div className="form-group">
                                         <label>
-                                            Test Phase <br/>
-                                            <label className="btn btn-light">
-                                                <input
-                                                      type="radio"
-                                                      onChange={this.handleInputChange}
-                                                      name="test_phase"
-                                                      className="form-control"
-                                                      value="initial"
-                                                      checked={test_phase === "initial"} />
-                                                Initial
-                                            </label>
-                                            <label className="btn btn-dark">
-                                                <input
-                                                      type="radio"
-                                                      onChange={this.handleInputChange}
-                                                      name="test_phase"
-                                                      className="form-control"
-                                                      value="complete"
-                                                      checked={test_phase === "complete"}
-                                                      />
-                                                Completed
-                                            </label>
+                                            Active? <br/>
+                                        <div class="custom-control custom-switch">
+                                          <input
+                                            type="checkbox"
+                                            onChange={this.handleInputClick("is_active")}
+                                            className="custom-control-input"
+                                            name="is_active"
+//                                            value={is_active}
+                                            id={`${job_name}_active_switch`}
+                                            checked={is_active} />
+                                          <label className="custom-control-label" for={`${job_name}_active_switch`}></label>
+                                        </div>
                                         </label>
                                     </div>
                                     <div className="form-group">

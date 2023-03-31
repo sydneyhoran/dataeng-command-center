@@ -50,6 +50,7 @@ def create_ingestion_topic(session, topic_dict: Dict[str, str], return_result=Fa
         # schema_name=topic_dict['schema_name'],
         # table_name=topic_dict['table_name'],
         topic_name=topic_dict['topic_name'],
+        is_active=topic_dict['is_active'],
         table_size=topic_dict['table_size'],
         source_ordering_field=topic_dict['source_ordering_field'],
         record_key=topic_dict['record_key'],
@@ -67,7 +68,7 @@ def create_ingestion_topic(session, topic_dict: Dict[str, str], return_result=Fa
 def create_deltastreamer_job(session, job_dict: Dict[str, str], return_result=False):
     new_job = DeltaStreamerJob(
         job_name=job_dict['job_name'],
-        test_phase=job_dict['test_phase'],
+        # test_phase=job_dict['test_phase'],
         job_size=job_dict['job_size'],
         updated_by=job_dict['updated_by'],
     )
@@ -81,12 +82,27 @@ def create_deltastreamer_job(session, job_dict: Dict[str, str], return_result=Fa
         return new_job
 
 
+def has_active_topics(job):
+    ret = False
+    for t in job.ingestion_topics:
+        if t.formatted_dict().get('is_active'):
+            ret = True
+    return ret
+
+
 def add_topic_to_job(session, job_id, topic_id):
     print(f"Adding topic {topic_id} to job {job_id}")
     job = session.query(DeltaStreamerJob).get(job_id)
     topic = session.query(IngestionTopic).get(topic_id)
     job.ingestion_topics.append(topic)
     session.commit()
+
+    # print(f"About to check if we need to change {job.is_active}")
+    # print(f"Job has_active_topics (before): {job.formatted_dict().get('has_active_topics')}")
+    # job.is_active = has_active_topics(job)
+    # session.commit()
+    # print(f"Job has_active_topics (after): {job.is_active}")
+    # session.commit()
 
 
 Session = init_session()
@@ -97,7 +113,7 @@ job1 = create_deltastreamer_job(
     session=sql_session,
     job_dict={
         "job_name": "unassigned_topics",
-        "test_phase": "complete",
+        # "test_phase": "complete",
         "job_size": "xs",
         "updated_by": "sydney",
     },
@@ -108,7 +124,7 @@ job2 = create_deltastreamer_job(
     session=sql_session,
     job_dict={
         "job_name": "deltastreamer_identity_history_account_activities",
-        "test_phase": "complete",
+        # "test_phase": "complete",
         "job_size": "lg",
         "updated_by": "sydney",
     },
@@ -125,6 +141,7 @@ topic1 = create_ingestion_topic(
         # "schema_name": "public_history",
         # "table_name": "account_activities",
         "topic_name": "identity.public_history.account_activities",
+        "is_active": True,
         "table_size": "lg",
         "source_ordering_field": "updated_at",
         "record_key": "id",
@@ -142,6 +159,7 @@ topic2 = create_ingestion_topic(
         # "schema_name": "public_history",
         # "table_name": "nobody",
         "topic_name": "identity.public_history.nobody",
+        "is_active": False,
         "table_size": "lg",
         "source_ordering_field": "updated_at",
         "record_key": "id",
@@ -161,7 +179,7 @@ print(topic2.id)
 
 # print(f"Topics: {[t.formatted_dict() for t in ingestion_topics_job_1]}")
 
-add_topic_to_job(sql_session, job1.id, topic1.id)
+add_topic_to_job(sql_session, job2.id, topic1.id)
 #
 # sql_session.commit()
 
@@ -184,8 +202,9 @@ print("\nResults of all jobs\n")
 
 for record in records:
     formatted_record = record.formatted_dict()
-    print(formatted_record['job_name'])
+    print(formatted_record)
     print(formatted_record['ingestion_topics'])
+    print()
     # for topic in record.formatted_dict()['ingestion_topics']:
     #     print(f"{topic.formatted_dict()}")
 

@@ -13,6 +13,7 @@ export default class TopicForm extends React.Component {
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleInputClick = this.handleInputClick.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -29,6 +30,7 @@ export default class TopicForm extends React.Component {
             table_name: topic.table_name || '',
             table_size: topic.table_size || 'xs',
             multi_flag: topic.multi_flag || 'false',
+            is_active: topic.is_active || false,
             source_ordering_field: topic.source_ordering_field || 'updated_at',
             record_key: topic.record_key || 'id',
             partition_path_field: topic.partition_path_field || 'inserted_at',
@@ -57,6 +59,15 @@ export default class TopicForm extends React.Component {
         this.setState({ current: {} });
         onSubmit(topic);
         e.preventDefault();
+    }
+
+    handleInputClick(name) {
+        return () => {
+          const { current } = this.state;
+          let update_payload = { [name]: !current[name] }
+          const updated = Object.assign({}, current, update_payload);
+          this.setState({ current: updated }, () => console.log(JSON.stringify(this.state.current)));
+        }
     }
 
     handleInputChange(e) {
@@ -89,6 +100,7 @@ export default class TopicForm extends React.Component {
                 table_name,
                 table_size,
                 multi_flag,
+                is_active,
                 source_ordering_field,
                 record_key,
                 partition_path_field,
@@ -209,6 +221,21 @@ export default class TopicForm extends React.Component {
                                   checked={multi_flag === "true"} />
                                  MultiTable
                             </label>
+                        </div>
+                        <div className="form-group">
+                                        <label>
+                                            Active? <br/>
+                                        <div class="custom-control custom-switch">
+                                          <input
+                                            type="checkbox"
+                                            onChange={this.handleInputClick("is_active")}
+                                            className="custom-control-input"
+                                            name="is_active"
+                                            id={`${topic_name}_active_switch`}
+                                            checked={is_active} />
+                                          <label className="custom-control-label" for={`${topic_name}_active_switch`}></label>
+                                        </div>
+                                        </label>
                         </div>
                         <div className="form-group">
                             <label>

@@ -122,7 +122,6 @@ def deltastreamer_job(job_id: str, Session) -> Response:
     response = ApiResponse.server_error()
 
     try:
-        print(f"Hello from deltastreamer_job in api_helper for job {job_id}")
         if request.method == 'GET':
             job = query_handler.get_deltastreamer_job(session, job_id)
             response = ApiResponse.success(job)

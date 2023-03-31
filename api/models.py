@@ -13,11 +13,12 @@ class DeltaStreamerJob(Base):
     __tablename__ = "scc_deltastreamer_jobs"
     # __table_args__ = {'schema': 'command_center'}
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
     job_name = Column(String(255), nullable=False)
-    test_phase = Column(String(255), nullable=False)
+    # test_phase = Column(String(255), nullable=False)
     job_size = Column(String(255), nullable=False)
     ingestion_topics = relationship('IngestionTopic', backref='deltastreamer_job')
+    # is_active = Column(Boolean, unique=False, default=False)
     # ingestion_topics = relationship('IngestionTopic', back_populates='ingestion_topics')
     created_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.current_timestamp())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.current_timestamp())
@@ -26,17 +27,26 @@ class DeltaStreamerJob(Base):
     def __repr__(self):
         return f'<Job {self.job_name}>'
 
+    def check_active_topics(self):
+        has_active_topics = False
+        for t in self.ingestion_topics:
+            if t.formatted_dict().get('is_active'):
+                has_active_topics = True
+        return has_active_topics
+
     def formatted_dict(self):
         unformatted = self.__dict__
 
         return {
             'id': unformatted['id'],
             'job_name': unformatted['job_name'],
-            'test_phase': unformatted['test_phase'],
+            # 'is_active': unformatted['is_active'],
+            # 'test_phase': unformatted['test_phase'],
             'job_size': unformatted['job_size'],
             'created_at': unformatted['created_at'].isoformat(),
             'updated_at': unformatted['updated_at'].isoformat(),
             'updated_by': unformatted['updated_by'],
+            'has_active_topics': self.check_active_topics(),
             'ingestion_topics': [t.formatted_dict() for t in self.ingestion_topics]
         }
 
@@ -52,6 +62,7 @@ class IngestionTopic(Base):
     # db_name = Column(String(255), nullable=False, primary_key=True)
     # schema_name = Column(String(255), nullable=False, primary_key=True)
     # table_name = Column(String(255), nullable=False, primary_key=True)
+    is_active = Column(Boolean, unique=False, default=False)
     table_size = Column(String(255), nullable=False)
     source_ordering_field = Column(String(255), nullable=False)
     record_key = Column(String(255), nullable=False)
@@ -72,6 +83,7 @@ class IngestionTopic(Base):
         return {
             'id': unformatted['id'],
             'topic_name': unformatted['topic_name'],
+            'is_active': unformatted['is_active'],
             'db_name': unformatted['topic_name'].split('.')[0],
             'schema_name': unformatted['topic_name'].split('.')[1],
             'table_name': unformatted['topic_name'].split('.')[2],
