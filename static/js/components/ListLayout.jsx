@@ -100,12 +100,16 @@ export default class ListLayout extends React.Component {
 
     renderJobCard(job) {
         return(
-            <div className="card job-card p-2 m-5">
+            <div className={"card " + (job.id == 1 ? "unassigned-job-card" : "job-card") + " p-2 m-5"}>
               <div className="card-title m-1 position-relative">
                 <strong>{job.job_name}</strong>
-                <Link to={job.id != 1 ? `/edit/deltastreamer_job/${job.id}` : '#'}><i className="fas fa-pen"></i></Link>
+                { job.id != 1  && (
+                    <Link to={`/edit/deltastreamer_job/${job.id}`}><i className="fas fa-pen"></i></Link>
+                    )
+                }
               </div>
               <div className="card-body m-1 p-1">
+
                 <table className="w-100">
                     <thead>
                         <tr role="row" className="code">

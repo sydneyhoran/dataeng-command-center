@@ -61,6 +61,7 @@ def sync_ingestion_topics(session, existing_job, new_topic_list):
     for topic in to_remove:
         topic_to_modify = session.query(IngestionTopic).filter(IngestionTopic.topic_name == topic).one()
         topic_to_modify.deltastreamer_job_id = 1
+        topic_to_modify.is_active = False
         session.commit()
     for topic in to_add:
         topic_to_add = session.query(IngestionTopic).filter(IngestionTopic.topic_name == topic).one()
@@ -104,7 +105,8 @@ def create_deltastreamer_job(session, args_dict: Dict[str, str]) -> List[Dict]:
     if ('topic_list' in job_dict) and (len(job_dict['topic_list']) > 0):
         session.commit()
         for topic in job_dict['topic_list']:
-            add_topic_to_job(session, new_job.id, topic.id)
+            topic_to_add = session.query(IngestionTopic).filter(IngestionTopic.topic_name == topic).one()
+            add_topic_to_job(session, new_job.id, topic_to_add.id)
             session.commit()
 
     job_dict['updated_at'] = job_dict['updated_at'].isoformat()
@@ -207,8 +209,10 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
             'created_at': datetime.datetime.now(),
             'updated_at': datetime.datetime.now()
         }
+        print("About to make new job")
         new_job = insert_deltastreamer_job(session, job_dict, return_result=True)
         session.commit()
+        print("About to add new topic to new job")
         add_topic_to_job(session, new_job.id, new_topic.id)
 
     topic_dict['updated_at'] = topic_dict['updated_at'].isoformat()

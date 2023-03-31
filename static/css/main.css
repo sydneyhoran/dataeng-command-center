@@ -34,6 +34,14 @@ div.bg-metal {
     box-shadow: 0 5px 10px rgba(0,0,0,.2) !important;
 }
 
+.unassigned-job-card {
+    background-color: #C5D9E2 !important;
+    color: #02394a;
+    padding: 1.5em .5em .5em !important;
+    border-radius: 1.2em !important;
+    box-shadow: 0 5px 10px rgba(0,0,0,.2) !important;
+}
+
 .topic-card {
     background-color: #e59f71 !important;
     color: #02394a;
@@ -45,6 +53,11 @@ div.bg-metal {
 }
 
 .job-card>.card-title {
+    color: #092327;
+    font-family: monospace;
+}
+
+.unassigned-job-card>.card-title {
     color: #092327;
     font-family: monospace;
 }
