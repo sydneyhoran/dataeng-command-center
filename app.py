@@ -106,6 +106,7 @@ def unassigned_topics():
 
 @app.route('/api/v1/ingestion_topics/<topic_id>', methods=['GET', 'POST', 'DELETE'])
 def ingestion_topic(topic_id):
+    print("In ingestion_topic in app.py")
     return api_helper.ingestion_topic(topic_id, Session)
 
 
