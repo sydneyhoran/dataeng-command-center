@@ -140,7 +140,7 @@ topic1 = create_ingestion_topic(
         # "db_name": "identity",
         # "schema_name": "public_history",
         # "table_name": "account_activities",
-        "topic_name": "identity.public_history.account_activities",
+        "topic_name": "identity.history_public.daily_time_spent",
         "is_active": True,
         "table_size": "lg",
         "source_ordering_field": "updated_at",
@@ -158,9 +158,27 @@ topic2 = create_ingestion_topic(
         # "db_name": "identity",
         # "schema_name": "public_history",
         # "table_name": "nobody",
-        "topic_name": "identity.public_history.nobody",
+        "topic_name": "identity.history_public.account_activities",
         "is_active": False,
         "table_size": "lg",
+        "source_ordering_field": "updated_at",
+        "record_key": "id",
+        "partition_path_field": "inserted_at",
+        "deltastreamer_job_name": None,
+        "updated_by": "sydney"
+    },
+    return_result=True
+)
+
+topic2 = create_ingestion_topic(
+    session=sql_session,
+    topic_dict={
+        # "db_name": "identity",
+        # "schema_name": "public_history",
+        # "table_name": "nobody",
+        "topic_name": "identity.history_public.award_notifications",
+        "is_active": False,
+        "table_size": "md",
         "source_ordering_field": "updated_at",
         "record_key": "id",
         "partition_path_field": "inserted_at",

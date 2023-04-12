@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
 
-//import DeleteButton from './DeleteButton';
+import DeleteButton from './DeleteButton';
 
 import * as utils from '../lib/utils';
 
@@ -45,6 +45,28 @@ export default class ListLayout extends React.Component {
        }
     }
 
+    onDeleteClick(type, params) {
+        const { for_tab, setAppState, triggerAlert } = this.props;
+        const elem = (type === 'topic') ? (`${params['topic_name']}`) : (`${params['job_name']}`);
+        const prompt = `Are you sure you want to delete '${elem}' now?`
+            + '\n\n    This operation cannot be undone.';
+        if (window.confirm(prompt)) {
+            const route = (type === 'topic') ? (`ingestion_topics/${params['topic_id']}`) : (`deltastreamer_jobs/${params['job_id']}`);
+            setAppState({ loading: true });
+            utils.deleteRequest(
+                route,
+                () => {
+                    window.location.reload();
+                },
+                (resp) => {
+                    setAppState({ loading: false });
+                    console.log(`Error deleting ${type} - ${resp.response.data.response.error}`);
+                    triggerAlert(`Error deleting ${type} - ${resp.response.data.response.error}`);
+                },
+            );
+        }
+    }
+
     getFilterOptions(jobs) {
         console.log("In getFilterOptions, jobs are " + JSON.stringify(jobs));
     }
@@ -61,6 +83,11 @@ export default class ListLayout extends React.Component {
                     <div classNAme="col-11">
                         <strong>Topic:</strong> {topic.topic_name}
                         <Link to={`/edit/ingestion_topic/${topic.id}`}><i className="fas fa-pen"></i></Link>
+                        <DeleteButton
+                            className="btn btn-link delete-button"
+                            onClick={() => this.onDeleteClick('topic', {'topic_id': topic.id, 'topic_name': topic.topic_name})}
+                        />
+                        <Link to={`/edit/ingestion_topic/${topic.id}`}><i className="fas fa-x"></i></Link>
                     </div>
                     <div className="col-1">
                         <div className="custom-control custom-switch">
@@ -105,8 +132,19 @@ export default class ListLayout extends React.Component {
               <div className="card-title m-1 position-relative">
                 <strong>{job.job_name}</strong>
                 { job.id != 1  && (
-                    <Link to={`/edit/deltastreamer_job/${job.id}`}><i className="fas fa-pen"></i></Link>
-                    )
+                    <span className={"mx-2 badge " + ( (job.ingestion_topics.length > 1) ? "badge-primary" : "badge-warning")}>
+                        { job.ingestion_topics.length > 1 ? 'MULTI' : 'SINGLE' }
+                    </span>
+                )}
+                { job.id != 1  && (
+                    <div>
+                        <Link to={`/edit/deltastreamer_job/${job.id}`}><i className="fas fa-pen"></i></Link>
+                        <DeleteButton
+                                className="btn btn-link delete-button"
+                                onClick={() => this.onDeleteClick('job', {'job_id': job.id, 'job_name': job.job_name})}
+                            />
+                    </div>
+                )
                 }
               </div>
               <div className="card-body m-1 p-1">

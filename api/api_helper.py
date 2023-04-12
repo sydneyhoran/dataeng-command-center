@@ -106,10 +106,10 @@ def ingestion_topic(topic_id: str, Session) -> Response:
             updated = query_handler.update_ingestion_topic(session, topic_id, request.get_json())
             session.commit()
             response = ApiResponse.success(updated)
-        # elif request.method == 'DELETE':
-        #     deleted = query_handler.delete_model(session, db_name, schema_name, table_name)
-        #     session.commit()
-        #     response = ApiResponse.success(deleted)
+        elif request.method == 'DELETE':
+            deleted = query_handler.delete_ingestion_topic(session, topic_id)
+            session.commit()
+            response = ApiResponse.success(deleted)
     except Exception as e:
         response = ApiResponse.bad_request(str(e))
 
@@ -129,6 +129,10 @@ def deltastreamer_job(job_id: str, Session) -> Response:
             updated = query_handler.update_deltastreamer_job(session, job_id, request.get_json())
             session.commit()
             response = ApiResponse.success(updated)
+        elif request.method == 'DELETE':
+            deleted = query_handler.delete_deltastreamer_job(session, job_id)
+            session.commit()
+            response = ApiResponse.success(deleted)
     except Exception as e:
         response = ApiResponse.bad_request(str(e))
 
