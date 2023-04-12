@@ -40,6 +40,12 @@ def get_all_ingestion_topics(session) -> List[Dict]:
     return [t.formatted_dict() for t in res]
 
 
+def get_ingestion_topic(session, topic_id) -> DeltaStreamerJob:
+    print("in get_ingestion_topic")
+    res = session.query(IngestionTopic).get(topic_id)
+    return res.formatted_dict()
+
+
 def get_unassigned_topics(session) -> List[Dict]:
     res = session.query(IngestionTopic).filter(IngestionTopic.deltastreamer_job_id == 1)
     return [t.formatted_dict() for t in res]
@@ -218,3 +224,31 @@ def create_ingestion_topic(session, args_dict: Dict[str, str]) -> List[Dict]:
     topic_dict['updated_at'] = topic_dict['updated_at'].isoformat()
     topic_dict['created_at'] = topic_dict['created_at'].isoformat()
     return [topic_dict]
+
+
+def update_ingestion_topic(session, topic_id: str, args_dict: Dict[str, str]) -> List[Dict]:
+    validate_fields(
+        args_dict,
+        [
+            'topic_name',
+            'table_size',
+            'is_active',
+            'source_ordering_field',
+            'record_key',
+            'partition_path_field',
+            'updated_by',
+         ]
+    )
+
+    existing_topic = session.query(IngestionTopic).get(topic_id)
+
+    existing_topic.topic_name = args_dict['topic_name']
+    existing_topic.table_size = args_dict['table_size']
+    existing_topic.is_active = args_dict['is_active']
+    existing_topic.source_ordering_field = args_dict['source_ordering_field']
+    existing_topic.record_key = args_dict['record_key']
+    existing_topic.partition_path_field = args_dict['partition_path_field']
+    existing_topic.updated_by = args_dict['updated_by']
+    existing_topic.updated_at = datetime.datetime.now()
+
+    return [args_dict]

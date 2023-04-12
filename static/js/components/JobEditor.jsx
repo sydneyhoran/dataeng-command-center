@@ -17,7 +17,7 @@ export default class JobEditor extends React.Component {
 
     componentDidMount() {
         const { match: { params }, job, unassigned_topics, setAppState, triggerAlert } = this.props;
-        setAppState({ loading: true });
+//        setAppState({ loading: true });
         if (params.job_id) {
             setAppState({ loading: true });
             utils.getRequest(
@@ -53,8 +53,7 @@ export default class JobEditor extends React.Component {
             triggerAlert,
         } = this.props;
         setAppState({ loading: true });
-        // TODO change to 'deltastreamer_jobs' (for new) or 'deltastreamer_jobs/:job_id' (for edit)
-        const route =  (params.job_id ? `deltastreamer_jobs/${params.job_id}` : 'deltastreamer_jobs')
+        const route =  (params.job_id ? `deltastreamer_jobs/${params.job_id}` : 'deltastreamer_jobs');
         utils.postRequest(
             route,
             job,

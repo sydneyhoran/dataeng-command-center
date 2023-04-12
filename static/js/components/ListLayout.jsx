@@ -60,6 +60,7 @@ export default class ListLayout extends React.Component {
                 <div className="row">
                     <div classNAme="col-11">
                         <strong>Topic:</strong> {topic.topic_name}
+                        <Link to={`/edit/ingestion_topic/${topic.id}`}><i className="fas fa-pen"></i></Link>
                     </div>
                     <div className="col-1">
                         <div className="custom-control custom-switch">

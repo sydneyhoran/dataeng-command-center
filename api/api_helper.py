@@ -93,19 +93,19 @@ def unassigned_topics(Session) -> Response:
     return response
 
 
-def ingestion_topic(topic_name: str, Session) -> Response:
+def ingestion_topic(topic_id: str, Session) -> Response:
     session = Session()
     response = ApiResponse.server_error()
 
     try:
-        print(f"Hello from ingestion_topic in api_helper for {topic_name}")
-        # if request.method == 'GET':
-        #     history = query_handler.get_model_history(session, db_name, schema_name, table_name)
-        #     response = ApiResponse.success(history)
-        # elif request.method == 'POST':
-        #     updated = query_handler.update_model(session, db_name, schema_name, table_name, request.get_json())
-        #     session.commit()
-        #     response = ApiResponse.success(updated)
+        print(f"Hello from ingestion_topic in api_helper for {topic_id}")
+        if request.method == 'GET':
+            history = query_handler.get_ingestion_topic(session, topic_id)
+            response = ApiResponse.success(history)
+        elif request.method == 'POST':
+            updated = query_handler.update_ingestion_topic(session, topic_id, request.get_json())
+            session.commit()
+            response = ApiResponse.success(updated)
         # elif request.method == 'DELETE':
         #     deleted = query_handler.delete_model(session, db_name, schema_name, table_name)
         #     session.commit()
