@@ -152,6 +152,16 @@ def update_deltastreamer_job(session, job_id: str, args_dict: Dict[str, str]) ->
     return [args_dict]
 
 
+def delete_deltastreamer_job(session, job_id: str) -> bool:
+    job = session.query(DeltaStreamerJob).get(job_id)
+    # orphan all connected topics to unassigned_topics "job" (future: prompt if cascade delete or orphan)
+    for topic in job.ingestion_topics:
+        topic.deltastreamer_job_id = 1
+    session.commit()
+    session.delete(job)
+    return True
+
+
 def insert_ingestion_topic(session, topic_dict: Dict[str, str], return_result=True):
     new_topic = IngestionTopic(
         topic_name=topic_dict['topic_name'],
@@ -252,3 +262,9 @@ def update_ingestion_topic(session, topic_id: str, args_dict: Dict[str, str]) ->
     existing_topic.updated_at = datetime.datetime.now()
 
     return [args_dict]
+
+
+def delete_ingestion_topic(session, topic_id: str) -> bool:
+    topic = session.query(IngestionTopic).get(topic_id)
+    session.delete(topic)
+    return True

@@ -43,3 +43,13 @@ export const postRequest = (route: string, payload: {}, cb: Function, err_cb: Fu
       err_cb(err);
     });
 };
+
+export const deleteRequest = (route: string, cb: Function, err_cb: Function = () => {}): void => {
+  axios
+    .delete(API_PREFIX + route)
+    .then(res => cb(res.data.response))
+    .catch((err) => {
+      console.log(err);
+      err_cb(err);
+    });
+};
